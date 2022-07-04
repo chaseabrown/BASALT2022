@@ -1,0 +1,2 @@
+2022-07-04 15:04:54 chase-VirtualBox process_watcher[2310] INFO Process watcher started between parent 2293 and child 2295 
+2022-07-04 15:06:13 chase-VirtualBox process_watcher[2310] INFO Child is not running anymore, launcher can terminate.

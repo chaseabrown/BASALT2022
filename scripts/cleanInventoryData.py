@@ -68,9 +68,9 @@ def parseInvImage(img):
     
     return {"Armor": armor, "Inventory": inventory, "Item Bar": itemBar, "Crafting": crafting}
 
-inputPath = "../assets/Useful Datasets/Full Inventory Images/"
-trainPath = "../assets/Useful Datasets/Item Classifier Data/train/"
-testPath = "../assets/Useful Datasets/Item Classifier Data/test/"
+inputPath = "../assets/datasets/Full Inventory Images/"
+trainPath = "../assets/datasets/Item Classifier Data/train/"
+testPath = "../assets/datasets/Item Classifier Data/test/"
 
 #Training Data
 

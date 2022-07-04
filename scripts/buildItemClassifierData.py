@@ -333,13 +333,10 @@ def parseInvImage(img):
     
     return {"Armor": armor, "Inventory": inventory, "Item Bar": itemBar, "Crafting": crafting}
 
-def logRun(obs, block, start, end):
+def logRun(obs, block, start, end, version):
     
     img = Image.fromarray(obs['pov'], 'RGB')
-    img.save("./logs/Run Logs/Inventory/" + block + '-' + start + '-' + end + '.jpg')
-    
-    
-    
+    img.save("../logs/Run Logs/Inventory/" + block + '-' + start + '-' + end + '-' + version + '.jpg')
 
 def editMalmoFixed(block, start, end, startUpFile):
     template = 'dict(type="{item}", quantity={amount}),\n'
@@ -352,7 +349,10 @@ def editMalmoFixed(block, start, end, startUpFile):
     projectFile.close()
 
 def editMalmoRandom(startUpFile, id1, id2):
-    df = pd.read_csv("./logs/Run Logs/Item Classifier Data/data.csv")
+    options = []
+    for file in os.listdir("../assets/datasets/Item Classifier Data/train/"):  
+        options.append({"block": file.split("-")[0], "quant": file.split("-")[1].split(".")[0]})
+    df = pd.DataFrame.from_dict(options)
     template = 'dict(type="{item}", quantity={amount}),\n'
     replace = ""
     testData = []
@@ -360,7 +360,7 @@ def editMalmoRandom(startUpFile, id1, id2):
         item = df.sample()
         replace += template.replace("{item}", item.iat[0,0]).replace("{amount}", str(item.iat[0,1]))
         testData.append({"location": i, "block": item.iat[0,0], "quantity": str(item.iat[0,1])})
-    df = pd.DataFrame.from_dict(testData).to_csv("./logs/Run Logs/Inventory/random" + '-' + id1 + '-' + id2 + '.csv', index=False)
+    df = pd.DataFrame.from_dict(testData).to_csv("../logs/Run Logs/Inventory/random" + '-' + id1 + '-' + id2 + '.csv', index=False)
     projectFile = open("/home/chase/.local/lib/python3.10/site-packages/minerl/herobraine/env_specs/basalt_specs.py", "w")
     projectFile.write(startUpFile.replace("{inventory}", replace))
     projectFile.close()
@@ -371,7 +371,7 @@ def runMalmo(block, start, end):
     import gym
     
 
-    path = "./logs/Run Logs/Inventory"
+    path = "../logs/Run Logs/Inventory"
     if not os.path.exists(path):
         os.makedirs(path)
     
@@ -388,14 +388,19 @@ def runMalmo(block, start, end):
         # Spin around to see what is around us
         if counter > 1:
             ac["inventory"] = 1
-            if counter < 4:
-                ac["camera"] = [-10, 0]
+            if counter < 4 and counter > 1:
+                ac["camera"] = [-100, -100]
+            elif counter == 4:
+                logRun(obs, block, start, end, "1")
+            elif counter < 7:
+                ac["camera"] = [100, 100]
+            elif counter == 7:
+                logRun(obs, block, start, end, "2")
             
         obs, reward, done, info = env.step(ac)
         env.render()
-        if counter == 5:
+        if counter == 7:
             done = True
-        logRun(obs, block, start, end)
 
     env.close()
     
