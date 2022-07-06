@@ -11,6 +11,35 @@ import numpy as np
 import os
 from random import randrange
 
+template = """
+<annotation>
+	<folder>{train/test}</folder>
+	<filename>{filename}</filename>
+	<path>/Users/chasebrown/Desktop/BASALT2022/BASALT2022/assets/datasets/Cursor Over Inventory/{train/test}/{filename}</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>640</width>
+		<height>360</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>cursor</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>{startHeight}</xmin>
+			<ymin>{startWidth}</ymin>
+			<xmax>{endHeight}</xmax>
+			<ymax>{endWidth}</ymax>
+		</bndbox>
+	</object>
+</annotation>
+"""
+
 left = 320
 top = 113
 width = 10
@@ -32,7 +61,7 @@ for row in range(0, 16):
 
 cursor = Image.fromarray(arr, 'RGB')
 
-path = "../logs/Run Logs/Inventory/"
+path = "../assets/datasets/Cursor Over Inventory/"
 
 for file in os.listdir(path):    
     if "2.jpg" in file:
@@ -58,4 +87,23 @@ for file in os.listdir(path):
                 itemWCursor.save(path + file.replace(".jpg", "") + "-(cursor[" + str(startRow) + "][" + str(startColumn) + "]).jpg")
                 print(file.replace(".jpg", "") + "-(cursor[" + str(startRow) + "][" + str(startColumn) + "]).jpg")
 
+path = "../assets/datasets/Cursor Over Inventory/"
 
+newpath = path + "train/"
+for file in os.listdir(newpath):    
+    if "cursor" in file:
+        curH = int(file.split("-")[-1].split('[')[1].split(']')[0])
+        curW = int(file.split("-")[-1].split('[')[2].split(']')[0])
+        with open(newpath + file.replace(".jpg", ".xml"), "w") as f:
+            f.write(template.replace("{train/test}", "train").replace("{filename}", file).replace("{startHeight}", str(curH)).replace("{startWidth}", str(curW)).replace("{endHeight}", str(curH+16)).replace("{endWidth}", str(curW+10)))
+        
+path = "../assets/datasets/Cursor Over Inventory/"
+
+newpath = path + "test/"
+for file in os.listdir(newpath):    
+    if "cursor" in file:
+        curH = int(file.split("-")[-1].split('[')[1].split(']')[0])
+        curW = int(file.split("-")[-1].split('[')[2].split(']')[0])
+        with open(newpath + file.replace(".jpg", ".xml"), "w") as f:
+            f.write(template.replace("{train/test}", "test").replace("{filename}", file).replace("{startHeight}", str(curH)).replace("{startWidth}", str(curW)).replace("{endHeight}", str(curH+16)).replace("{endWidth}", str(curW+10)))
+        

@@ -104,14 +104,15 @@ while not done:
     counter += 1
     ac = env.action_space.noop()
     # Spin around to see what is around us
-    if counter > 20:
-        ac["inventory"] = 1
-        if counter < 23:
-            ac["camera"] = [-10, 0]
-    elif counter>1:
-        ac["camera"] = [0, 3]
-    else:
-        ac["camera"] = [0, 0]
+    ac["inventory"] = 1
+    if counter < 10:
+        ac["camera"] = [-10, 0]
+    elif counter < 20:
+        ac["camera"] = [0, -10]
+    elif counter < 30:
+        ac["camera"] = [10, 0]
+    elif counter < 40:
+        ac["camera"] = [0, 10]
         
     obs, reward, done, info = env.step(ac)
     env.render()

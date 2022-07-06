@@ -1,0 +1,27 @@
+
+<annotation>
+	<folder>test</folder>
+	<filename>random-[1425]-[2614]-2-(cursor[317][192]).jpg</filename>
+	<path>/Users/chasebrown/Desktop/BASALT2022/BASALT2022/assets/datasets/Cursor Over Inventory/test/random-[1425]-[2614]-2-(cursor[317][192]).jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>640</width>
+		<height>360</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>cursor</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>317</xmin>
+			<ymin>192</ymin>
+			<xmax>333</xmax>
+			<ymax>202</ymax>
+		</bndbox>
+	</object>
+</annotation>
