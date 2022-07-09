@@ -14,8 +14,7 @@ import numpy as np
 
 agent = Agent()
 
-img = Image.open("/Users/chasebrown/Desktop/BASALT2022/BASALT2022-git/logs/Run Logs/D2022-07-06-T17-06-01/D2022-07-06-T17-07-40-718114.jpg")
-img.show()
+img = Image.open("../logs/Run Logs/D2022-07-06-T17-06-01/D2022-07-06-T17-07-40-718114.jpg")
 
 obs = {"pov": np.array(img)}
 

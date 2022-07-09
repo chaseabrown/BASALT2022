@@ -72,7 +72,7 @@ import os
 from detecto import core, utils, visualize
 import sys        
 sys.path.append('../models')
-import InvClassifier as IC
+from BASALTAgent import Agent
 
 coloredlogs.install(logging.DEBUG)
 
@@ -100,7 +100,7 @@ if not os.path.exists(path):
 env = gym.make("MineRLBasaltBuildVillageHouse-v0")
 obs = env.reset()
 
-classifier = IC.InvClassifier()
+agent = Agent()
 
 
 done = False
@@ -120,10 +120,10 @@ while not done:
         ac["camera"] = [0, -10]
         
     obs, reward, done, info = env.step(ac)
-    #labels, boxes, scores = classifier.predict_cursor(obs['pov'])
-    #print(boxes)
-    #print(scores)
     env.render()
+    
+    #agent.act(obs)
+    
     if counter == 11:
         done = True
     logRun(ac, obs, reward, done, info, startTimeSTR)

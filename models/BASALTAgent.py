@@ -7,10 +7,121 @@ Created on Sat Jul  2 19:12:02 2022
 """
 
 import InvClassifier as IC
-from PIL import Image
+from PIL import Image, ImageDraw
 import numpy as np
 import cv2
 import time
+import os
+import pandas as pd
+import csv
+
+
+
+
+def paintInventory(img, inventory, cursorLocation):
+    blockpath = "../assets/blockImages/"
+    reader = csv.reader(open(blockpath + 'colors.csv', 'r'))
+    colors = {}
+    for row in reader:
+       colors.update({row[1]: {0: row[2], 1: row[3], 2: row[4]}})
+    img1 = ImageDraw.Draw(img)  
+    
+    #Armor
+    left = 240
+    top = 105
+    width = 16
+    height = 16
+    for item in range(0,4):
+        if not inventory["armor"][item]['item'] == "empty":
+            try:
+                shape = [(left, top), (left+width, top+height)]
+                img1.rectangle(shape, outline = (int(colors[inventory["armor"][item]['item']][2].split(".")[0]), int(colors[inventory["armor"][item]['item']][1].split(".")[0]), int(colors[inventory["armor"][item]['item']][0].split(".")[0])))
+            except Exception as e:
+                print(e)
+                shape = [(left, top), (left+width, top+height)]
+                img1.rectangle(shape, outline ="red")
+        top += 18
+    
+    left = 309
+    top = 159
+    if not inventory["armor"][4]['item'] == "empty":
+        try:
+            shape = [(left, top), (left+width, top+height)]
+            img1.rectangle(shape, outline = (int(colors[inventory["armor"][4]['item']][2].split(".")[0]), int(colors[inventory["armor"][4]['item']][1].split(".")[0]), int(colors[inventory["armor"][4]['item']][0].split(".")[0])))
+        except Exception as e:
+            print(e)
+            shape = [(left, top), (left+width, top+height)]
+            img1.rectangle(shape, outline ="red")
+        
+    
+    #Inventory
+    top = 181
+    
+    for row in range(0, 3):
+        left = 240
+        for column in range(0,9):
+            if not inventory["inventory"][row*9 + column]['item'] == "empty":
+                try:
+                    shape = [(left, top), (left+width, top+height)]
+                    img1.rectangle(shape, outline = (int(colors[inventory["inventory"][row*9 + column]['item']][2].split(".")[0]), int(colors[inventory["inventory"][row*9 + column]['item']][1].split(".")[0]), int(colors[inventory["inventory"][row*9 + column]['item']][0].split(".")[0])))
+                except Exception as e:
+                    print(e)
+                    shape = [(left, top), (left+width, top+height)]
+                    img1.rectangle(shape, outline ="red")
+            left += 18
+        top += 18
+    
+    #Item Bar
+    top = 239
+    left = 240
+    
+    for column in range(0,9):
+        if not inventory["item_bar"][column]['item'] == "empty":
+            try:
+                shape = [(left, top), (left+width, top+height)]
+                img1.rectangle(shape, outline = (int(colors[inventory["item_bar"][column]['item']][2].split(".")[0]), int(colors[inventory["item_bar"][column]['item']][1].split(".")[0]), int(colors[inventory["item_bar"][column]['item']][0].split(".")[0])))
+            except Exception as e:
+                print(e)
+                shape = [(left, top), (left+width, top+height)]
+                img1.rectangle(shape, outline ="red")
+        left += 18
+        
+    #Crafting
+    top = 115
+    
+    for row in range(0, 2):
+        left = 330
+        for column in range(0,2):
+            if not inventory["crafting"][row*2 + column]['item'] == "empty":
+                try:
+                    shape = [(left, top), (left+width, top+height)]
+                    img1.rectangle(shape, outline = (int(colors[inventory["crafting"][row*2 + column]['item']][2].split(".")[0]), int(colors[inventory["crafting"][row*2 + column]['item']][1].split(".")[0]), int(colors[inventory["crafting"][row*2 + column]['item']][0].split(".")[0])))
+                except Exception as e:
+                    print(e)
+                    shape = [(left, top), (left+width, top+height)]
+                    img1.rectangle(shape, outline ="red")
+            left += 18
+        top += 18
+    left = 386
+    top = 125
+    if not inventory["crafting"][4]['item'] == "empty":
+        try:
+            shape = [(left, top), (left+width, top+height)]
+            img1.rectangle(shape, outline = (int(colors[inventory["crafting"][4]['item']][2].split(".")[0]), int(colors[inventory["crafting"][4]['item']][1].split(".")[0]), int(colors[inventory["crafting"][4]['item']][0].split(".")[0])))
+        except Exception as e:
+            print(e)
+            shape = [(left, top), (left+width, top+height)]
+            img1.rectangle(shape, outline ="red")
+    
+    
+    shape = [(cursorLocation['x']-1, cursorLocation['y']-1), (cursorLocation['x'] + 1, cursorLocation['y'] + 1)]
+    img1.rectangle(shape, fill= "blue", outline ="blue")
+    
+    img.save("./test.jpg")
+
+
+
+
 
 def parseInvImage(img):
     
@@ -21,7 +132,6 @@ def parseInvImage(img):
     top = 105
     width = 16
     height = 16
-    armor = {}
     for item in range(0,4):
         box = (left, top, left+width, top+height)
         image= np.array(img.crop(box))
@@ -40,7 +150,6 @@ def parseInvImage(img):
     
     #Inventory
     top = 181
-    inventory = {}
     
     for row in range(0, 3):
         left = 240
@@ -56,7 +165,6 @@ def parseInvImage(img):
     #Item Bar
     top = 239
     left = 240
-    itemBar = {}
     
     for column in range(0,9):
         box = (left, top, left+width, top+height)
@@ -68,7 +176,6 @@ def parseInvImage(img):
         
     #Crafting
     top = 115
-    crafting = {}
     
     for row in range(0, 2):
         left = 330
@@ -169,7 +276,6 @@ class Agent:
         items = self.invClassifier.predict_item(invs)
         quants = self.invClassifier.predict_quantity(invs)
         for slot in range(0, len(invs)):
-            print(slot, items[slot], quants[slot])
             if slot < 5:
                 self.inventory["armor"][slot]['item'] = items[slot]
                 self.inventory["armor"][slot]['quantity'] = quants[slot]
@@ -185,23 +291,30 @@ class Agent:
         self.cursorLocation = self.invClassifier.predict_cursor(cv2.cvtColor(pov, cv2.COLOR_RGB2BGR))
         
     
-    def _show_mind(self):
+    def _show_mind(self, pov, console_print = True):
         
-        print("Current Inventory:")
+        if console_print:
+            print("Current Inventory:")
+            
+            for section in self.inventory.keys():
+                for cell in self.inventory[section].keys():
+                    print(section, cell, "| Item:", self.inventory[section][cell]["item"], "| Quantity: ", self.inventory[section][cell]["quantity"])
+                    
+            print("Cursor Location: ", self.cursorLocation["x"], self.cursorLocation["y"])
         
-        for section in self.inventory.keys():
-            for cell in self.inventory[section].keys():
-                print(section, cell, "| Item:", self.inventory[section][cell]["item"], "| Quantity: ", self.inventory[section][cell]["quantity"])
-                
-        print("Cursor Location: ", self.cursorLocation["x"], self.cursorLocation["y"])
+        img = Image.fromarray(pov, 'RGB')
+        paintInventory(img, self.inventory, self.cursorLocation)
+        
+        
         
     
     def act(self, obs):
         print("Starting Action...")
         start = time.time()
         augObs = self._observe_pov(obs['pov'])
-        self._show_mind()
+        self._show_mind(obs['pov'])
         print("Agent Action Returned. (Time Taken:", time.time()-start, ")")
+        
         
     
 

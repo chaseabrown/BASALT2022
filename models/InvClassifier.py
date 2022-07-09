@@ -89,9 +89,9 @@ def load_item_data():
 
 class InvClassifier:
     
-    def __init__(self, pretrained = True):   
+    def __init__(self, pretrained = True, download_data = False):   
                 
-        if pretrained:
+        if pretrained and download_data:
             self._download_weights()
         self.item_model = self._build_inv_model()
         self.quant_model = self._build_inv_model()
