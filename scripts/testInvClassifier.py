@@ -32,7 +32,7 @@ def create_dataset_quantity(img_folder):
     return img_data_array , class_name
 
 def load_quantity_data():
-    testPath = "../assets/Useful Datasets/Item Classifier Data/test/"
+    testPath = "../assets/datasets/Item Classifier Data/test/"
 
     xTestData, yTestData = create_dataset_quantity(testPath)
 
@@ -60,7 +60,7 @@ def create_dataset_items(img_folder):
     return img_data_array , class_name
 
 def load_item_data():
-    testPath = "../assets/Useful Datasets/Item Classifier Data/test/"
+    testPath = "../assets/datasets/Item Classifier Data/test/"
 
     xTestData, yTestData = create_dataset_items(testPath)
 
@@ -101,5 +101,8 @@ for i in range(0, len(y_test)):
         numCorrect += 1
     
 print("\nAccuracy of Quantity Classifier: ", numCorrect/len(y_test))
+
+
+
 
 

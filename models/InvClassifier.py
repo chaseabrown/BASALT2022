@@ -10,6 +10,10 @@ import os
 import numpy as np
 from PIL import Image
 from sklearn.naive_bayes import GaussianNB
+from detecto import core, utils, visualize
+import matplotlib.pyplot as plt
+import cv2
+import gdown
 
 def create_dataset_quantity(img_folder):
     
@@ -29,7 +33,7 @@ def create_dataset_quantity(img_folder):
     return img_data_array , class_name
 
 def load_quantity_data():
-    trainPath = "../assets/Useful Datasets/Item Classifier Data/train/"
+    trainPath = "../assets/datasets/Item Classifier Data/train/"
 
     xTrainData, yTrainData = create_dataset_quantity(trainPath)
 
@@ -57,7 +61,7 @@ def create_dataset_items(img_folder):
     return img_data_array , class_name
 
 def load_item_data():
-    trainPath = "../assets/Useful Datasets/Item Classifier Data/train/"
+    trainPath = "../assets/datasets/Item Classifier Data/train/"
 
     xTrainData, yTrainData = create_dataset_items(trainPath)
 
@@ -85,20 +89,36 @@ def load_item_data():
 
 class InvClassifier:
     
-    def __init__(self):       
-       self.item_model = self._build_model()
-       self.quant_model = self._build_model()
-       self.toNumDict = {}
-       self.fromNumDict = {}
+    def __init__(self, pretrained = True):   
+                
+        if pretrained:
+            self._download_weights()
+        self.item_model = self._build_inv_model()
+        self.quant_model = self._build_inv_model()
+        self.cursor_model = self._build_cursor_model()
+        self.toNumDict = {}
+        self.fromNumDict = {}
        
-       self._train()
+        self._train(pretrained)
        
-    def _build_model(self):
+       
+    def _download_weights(self):
+        url = 'https://drive.google.com/file/d/1OdH1n7362DGfeU6ZxBUwQVLcU6hRXJeV/view?usp=sharing'
+        output = '../assets/datasets/Cursor Over Inventory/cursorFinderWeights.pth'
+        gdown.download(url, output, quiet=False, fuzzy=True)
+    
+    
+    def _build_inv_model(self):
         model = GaussianNB()
         
         return model
     
-    def _train(self):
+    def _build_cursor_model(self):
+        model = GaussianNB()
+        
+        return model
+    
+    def _train(self, pretrained):
         x_train, y_train = load_quantity_data()
         self.quant_model.fit(x_train, y_train)
         
@@ -107,6 +127,20 @@ class InvClassifier:
         self.toNumDict = toNumDict
 
         self.item_model.fit(x_train, y_train)
+        
+        if pretrained:
+            self.cursor_model = core.Model.load('../assets/datasets/Cursor Over Inventory/cursorFinderWeights.pth', ['cursor'])
+        else:
+            dataset = core.Dataset('../assets/datasets/Cursor Over Inventory/train')
+            loader = core.DataLoader(dataset, batch_size=2, shuffle=True)
+            model = core.Model(['cursor'])
+            
+            valdataset = core.Dataset('../assets/datasets/Cursor Over Inventory/val')
+            
+            losses = model.fit(loader, valdataset, epochs=10, learning_rate=0.001, 
+                               lr_step_size=5, verbose=True)
+            
+            self.cursor_model = model
 
     def predict_item(self, x):
         preds = []
@@ -117,6 +151,15 @@ class InvClassifier:
     def predict_quantity(self, x):
         pred = self.quant_model.predict(x)
         return pred
+    
+    def predict_cursor(self, x):
+        predictions = self.cursor_model.predict_top(x)
+        labels, boxes, scores = predictions
+        try:
+            return {'x': float(boxes[0][0]), 'y': float(boxes[0][1])}
+        except:
+            print(boxes)
+            return {"x": 0, "y": 0}
 
     
     

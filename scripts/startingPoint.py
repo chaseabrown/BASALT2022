@@ -69,12 +69,16 @@ import coloredlogs
 from PIL import Image
 import datetime
 import os
+from detecto import core, utils, visualize
+import sys        
+sys.path.append('../models')
+import InvClassifier as IC
 
 coloredlogs.install(logging.DEBUG)
 
 def logRun(ac, obs, reward, done, info, startTimeSTR):
     datetimeSTR = datetime.datetime.now().strftime("D%Y-%m-%d-T%H-%M-%S-%f")
-    log = open("./logs/Run Logs/" + startTimeSTR + "/" + datetimeSTR + ".txt", 'w+')
+    log = open("../logs/Run Logs/" + startTimeSTR + "/" + datetimeSTR + ".txt", 'w+')
     for key in ac.keys():
         log.write(key + ": " + str(ac[key]) + "\n")
     log.write("\nReward: " + str(reward) + "\n")
@@ -84,18 +88,19 @@ def logRun(ac, obs, reward, done, info, startTimeSTR):
     log.close()
     
     img = Image.fromarray(obs['pov'], 'RGB')
-    img.save("./logs/Run Logs/" + startTimeSTR + "/" + datetimeSTR + '.jpg')
+    img.save("../logs/Run Logs/" + startTimeSTR + "/" + datetimeSTR + '.jpg')
     
 
 startTimeSTR = datetimeSTR = datetime.datetime.now().strftime("D%Y-%m-%d-T%H-%M-%S")
 
-path = "./logs/Run Logs/" + startTimeSTR
+path = "../logs/Run Logs/" + startTimeSTR
 if not os.path.exists(path):
     os.makedirs(path)
     
 env = gym.make("MineRLBasaltBuildVillageHouse-v0")
 obs = env.reset()
 
+classifier = IC.InvClassifier()
 
 
 done = False
@@ -105,18 +110,21 @@ while not done:
     ac = env.action_space.noop()
     # Spin around to see what is around us
     ac["inventory"] = 1
-    if counter < 10:
+    if counter < 2:
         ac["camera"] = [-10, 0]
-    elif counter < 20:
-        ac["camera"] = [0, -10]
-    elif counter < 30:
-        ac["camera"] = [10, 0]
-    elif counter < 40:
+    elif counter < 4:
         ac["camera"] = [0, 10]
+    elif counter < 7:
+        ac["camera"] = [10, 0]
+    elif counter < 10:
+        ac["camera"] = [0, -10]
         
     obs, reward, done, info = env.step(ac)
+    #labels, boxes, scores = classifier.predict_cursor(obs['pov'])
+    #print(boxes)
+    #print(scores)
     env.render()
-    if counter == 30:
+    if counter == 11:
         done = True
     logRun(ac, obs, reward, done, info, startTimeSTR)
 

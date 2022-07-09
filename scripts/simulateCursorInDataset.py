@@ -95,7 +95,7 @@ for file in os.listdir(newpath):
         curH = int(file.split("-")[-1].split('[')[1].split(']')[0])
         curW = int(file.split("-")[-1].split('[')[2].split(']')[0])
         with open(newpath + file.replace(".jpg", ".xml"), "w") as f:
-            f.write(template.replace("{train/test}", "train").replace("{filename}", file).replace("{startHeight}", str(curH)).replace("{startWidth}", str(curW)).replace("{endHeight}", str(curH+16)).replace("{endWidth}", str(curW+10)))
+            f.write(template.replace("{train/test}", "train").replace("{filename}", file).replace("{startHeight}", str(curW)).replace("{startWidth}", str(curH)).replace("{endHeight}", str(curW+10)).replace("{endWidth}", str(curH+16)))
         
 path = "../assets/datasets/Cursor Over Inventory/"
 
@@ -105,5 +105,5 @@ for file in os.listdir(newpath):
         curH = int(file.split("-")[-1].split('[')[1].split(']')[0])
         curW = int(file.split("-")[-1].split('[')[2].split(']')[0])
         with open(newpath + file.replace(".jpg", ".xml"), "w") as f:
-            f.write(template.replace("{train/test}", "test").replace("{filename}", file).replace("{startHeight}", str(curH)).replace("{startWidth}", str(curW)).replace("{endHeight}", str(curH+16)).replace("{endWidth}", str(curW+10)))
+            f.write(template.replace("{train/test}", "test").replace("{filename}", file).replace("{startHeight}", str(curW)).replace("{startWidth}", str(curH)).replace("{endHeight}", str(curW+10)).replace("{endWidth}", str(curH+16)))
         
