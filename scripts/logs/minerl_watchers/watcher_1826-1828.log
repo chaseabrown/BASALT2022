@@ -1,0 +1,10 @@
+2022-07-11 20:26:41 chase2-VirtualBox process_watcher[1843] INFO Process watcher started between parent 1826 and child 1828 
+2022-07-11 20:27:29 chase2-VirtualBox process_watcher[1843] INFO Parent is not running, hence we need terminate the child.
+2022-07-11 20:27:29 chase2-VirtualBox process_watcher[1843] INFO About to reap process tree of 1828:launchClient.sh:/usr/bin/bash i sleeping, owner 780, printing process tree status in termination order:
+2022-07-11 20:27:29 chase2-VirtualBox process_watcher[1843] INFO 	-1832:java:/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java i sleeping, owner 1828
+2022-07-11 20:27:29 chase2-VirtualBox process_watcher[1843] INFO 	-1828:launchClient.sh:/usr/bin/bash i sleeping, owner 780
+2022-07-11 20:27:29 chase2-VirtualBox process_watcher[1843] INFO Trying to SIGTERM 1832:java:/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java i sleeping, owner 1828
+2022-07-11 20:27:34 chase2-VirtualBox process_watcher[1843] INFO Process 1832 survived SIGTERM; trying SIGKILL on 1832:java:/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java i sleeping, owner 1828
+2022-07-11 20:27:34 chase2-VirtualBox process_watcher[1843] INFO Process psutil.Process(pid=1832, name='java', status='terminated', started='20:26:39') terminated with exit code None
+2022-07-11 20:27:34 chase2-VirtualBox process_watcher[1843] INFO Trying to SIGTERM 1828:launchClient.sh:/usr/bin/bash i running, owner 780
+2022-07-11 20:27:34 chase2-VirtualBox process_watcher[1843] INFO Process psutil.Process(pid=1828, name='launchClient.sh', status='terminated', started='20:26:39') terminated with exit code None

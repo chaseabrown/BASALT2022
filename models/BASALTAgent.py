@@ -77,10 +77,6 @@ def paintInventory(img, inventory, cursorLocation):
     
     img.save("./test.jpg")
 
-
-
-
-
 def parseInvImage(img):
     
     img_data_array=[]
@@ -249,7 +245,7 @@ class Agent:
         self.cursorLocation = self.invClassifier.predict_cursor(cv2.cvtColor(pov, cv2.COLOR_RGB2BGR))
         
     
-    def _show_mind(self, pov, console_print = True):
+    def _show_mind(self, pov, console_print = False):
         
         if console_print:
             print("Current Inventory:")
@@ -270,8 +266,9 @@ class Agent:
         print("Starting Action...")
         start = time.time()
         augObs = self._observe_pov(obs['pov'])
-        self._show_mind(obs['pov'])
         print("Agent Action Returned. (Time Taken:", time.time()-start, ")")
+
+        return {'inventory': self.inventory, 'cursorLocation': self.cursorLocation}
         
         
     
