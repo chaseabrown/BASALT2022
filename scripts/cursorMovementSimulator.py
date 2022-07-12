@@ -320,12 +320,15 @@ def resetGame(ac, env):
     ac["camera"] = [-10, 0]
     obs, reward, done, info = env.step(ac)
     env.render()
-    return obs
+
+    goalLoc = randint(0, 40)
+
+    return obs, goalLoc
 
 
 startTimeSTR = datetimeSTR = datetime.datetime.now().strftime("D%Y-%m-%d-T%H-%M-%S")
 
-diamondLoc = editMalmoRandom()
+startLoc = editMalmoRandom()
 
 import minerl
 
@@ -355,31 +358,32 @@ while not done:
     counter += 1
     ac = env.action_space.noop()
     # Spin around to see what is around us
-    resetGame(ac, env)
+    obs, goalLoc = resetGame(ac, env)
     info = agent.act(obs)
+    currentLoc = -1
+    invShiftDict = {"armor": 0, "inventory": 5, "item_bar": 32, "crafting": 41}
+    for key in info['inventory'].keys():
+        for num in info['inventory'][key].keys():
+            if info['inventory'][key][num]["item"] == 'diamond':
+                currentLoc = num + invShiftDict[key]
+                break
+    if currentLoc == -1:
+        print("No diamond found")
+    
 
-    if diamondLoc < 5:
-        self.inventory["armor"][slot]['item'] = items[slot]
-        self.inventory["armor"][slot]['quantity'] = quants[slot]
-    elif slot < 32:
-        self.inventory["inventory"][slot-5]['item'] = items[slot]
-        self.inventory["inventory"][slot-5]['quantity'] = quants[slot]
-    elif slot < 41:
-        self.inventory["item_bar"][slot-32]['item'] = items[slot]
-        self.inventory["item_bar"][slot-32]['quantity'] = quants[slot]
-    else:
-        self.inventory["crafting"][slot-41]['item'] = items[slot]
-        self.inventory["crafting"][slot-41]['quantity'] = quants[slot]
+
+    
 
     holding = False
     if ac["Attack"] == 1 and info["inventory"][]
-    state = [info["cursorLocation"]["x"], info["cursorLocation"]['y'], info["holding"], info["inventory_start"], info["inventory_end"]]
+
+
+    state = [info["cursorLocation"]["x"], info["cursorLocation"]['y'], holding, currentLoc, goalLoc]
     state = np.reshape(state, [1, state_size])
 
     action = dqn.act()
 
     
-    #
     
     if counter == 11:
         done = True
