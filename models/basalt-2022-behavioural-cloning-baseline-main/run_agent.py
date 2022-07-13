@@ -1,13 +1,22 @@
 from argparse import ArgumentParser
+from itertools import count
 import pickle
 
 import gym
 import minerl
+from colabgymrender.recorder import Recorder
+from pyvirtualdisplay import Display
+
 
 from openai_vpt.agent import MineRLAgent, ENV_KWARGS
 
 def main(model, weights, env):
+    envName = str(env)
     env = gym.make(env)
+    display = Display(visible=0, size=(720, 480))
+    display.start()
+    env = Recorder(env, "/content/drive/MyDrive/BASALT2022/basalt-2022-behavioural-cloning-baseline-main/video/" + envName + "/", fps=30)
+
     print("---Loading model---")
     agent_parameters = pickle.load(open(model, "rb"))
     policy_kwargs = agent_parameters["model"]["args"]["net"]["args"]
@@ -19,6 +28,7 @@ def main(model, weights, env):
     print("---Launching MineRL enviroment (be patient)---")
     obs = env.reset()
 
+    counter = 0
     while True:
         minerl_action = agent.get_action(obs)
         # ESC is not part of the predictions model.
@@ -27,6 +37,15 @@ def main(model, weights, env):
         minerl_action["ESC"] = 0
         obs, reward, done, info = env.step(minerl_action)
         env.render()
+        if done:
+            counter += 1
+            if counter < 10:
+                print("---Restarting---")
+                obs = env.reset()
+            else:
+                print("---Done---")
+                break
+    env.stop()
 
 
 if __name__ == "__main__":
