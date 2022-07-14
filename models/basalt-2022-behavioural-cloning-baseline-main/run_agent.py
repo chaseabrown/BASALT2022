@@ -6,16 +6,33 @@ import gym
 import minerl
 from colabgymrender.recorder import Recorder
 from pyvirtualdisplay import Display
-
+from datetime import datetime
 
 from openai_vpt.agent import MineRLAgent, ENV_KWARGS
 
+def logActions(action, envName, datetimeSTR)
+
+    action = {'ESC': 0, 'attack': 0, 'back': 0, 'camera': [0.0, 0.0], 'drop': 0, 'forward': 0,
+                            'hotbar.1': 0, 'hotbar.2': 0, 'hotbar.3': 0, 'hotbar.4': 0, 'hotbar.5': 0, 'hotbar.6': 0, 'hotbar.7': 0, 'hotbar.8': 0, 'hotbar.9': 0,
+                            'inventory': 0, 'jump': 0, 'left': 0, 'pickItem': 0, 'right': 0, 'sneak': 0, 'sprint': 0, 'swapHands': 0, 'use': 0}
+    datetimeSTR = datetime.now().strftime("D%Y-%m-%d-T%H-%M-%S-%f")
+    with open("/content/drive/MyDrive/BASALT2022/basalt-2022-behavioural-cloning-baseline-main/video/" + envName + "/" + datetimeSTR + ".txt", "a") as f:
+        line = "{"
+        for key in action.keys():
+            if key == "camera":
+                line += key + ": [" + str(action[key][0]) + ", " + str(action[key][1]) + "], "
+            else:
+                line += key + ":" + str(action[key]) + ", "
+        line = line[:-2] + "}"
+        f.write(line + "\n")
+    
 def main(model, weights, env):
     envName = str(env)
     env = gym.make(env)
     display = Display(visible=0, size=(720, 480))
     display.start()
-    env = Recorder(env, "/content/drive/MyDrive/BASALT2022/basalt-2022-behavioural-cloning-baseline-main/video/" + envName + "/", fps=30)
+    datetimeSTR = datetime.now().strftime("D%Y-%m-%d-T%H-%M-%S-%f")
+    env = Recorder(env, "/content/drive/MyDrive/BASALT2022/basalt-2022-behavioural-cloning-baseline-main/video/" + envName + "/" + datetimeSTR + ".mp4", fps=30)
 
     print("---Loading model---")
     agent_parameters = pickle.load(open(model, "rb"))
