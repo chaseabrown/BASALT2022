@@ -10,12 +10,8 @@ from datetime import datetime
 
 from openai_vpt.agent import MineRLAgent, ENV_KWARGS
 
-def logActions(action, envName, datetimeSTR)
+def logActions(action, envName, datetimeSTR):
 
-    action = {'ESC': 0, 'attack': 0, 'back': 0, 'camera': [0.0, 0.0], 'drop': 0, 'forward': 0,
-                            'hotbar.1': 0, 'hotbar.2': 0, 'hotbar.3': 0, 'hotbar.4': 0, 'hotbar.5': 0, 'hotbar.6': 0, 'hotbar.7': 0, 'hotbar.8': 0, 'hotbar.9': 0,
-                            'inventory': 0, 'jump': 0, 'left': 0, 'pickItem': 0, 'right': 0, 'sneak': 0, 'sprint': 0, 'swapHands': 0, 'use': 0}
-    datetimeSTR = datetime.now().strftime("D%Y-%m-%d-T%H-%M-%S-%f")
     with open("/content/drive/MyDrive/BASALT2022/basalt-2022-behavioural-cloning-baseline-main/video/" + envName + "/" + datetimeSTR + ".txt", "a") as f:
         line = "{"
         for key in action.keys():
@@ -52,8 +48,10 @@ def main(model, weights, env):
         # For baselines, we just set it to zero.
         # We leave proper execution as an exercise for the participants :)
         minerl_action["ESC"] = 0
+        logActions(minerl_action, envName, datetimeSTR)
         obs, reward, done, info = env.step(minerl_action)
         env.render()
+        
         if done:
             counter += 1
             if counter < 10:
