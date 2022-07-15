@@ -16,6 +16,61 @@ import os
 import pandas as pd
 import json 
 
+
+#Template Variables
+
+INVENTORY = {"armor": {0: {"item": "", "quantity": 0, "durability": 0},
+                                  1: {"item": "", "quantity": 0, "durability": 0},
+                                  2: {"item": "", "quantity": 0, "durability": 0},
+                                  3: {"item": "", "quantity": 0, "durability": 0},
+                                  4: {"item": "", "quantity": 0, "durability": 0}},
+                        "item_bar": {0: {"item": "", "quantity": 0, "durability": 0},
+                                                    1: {"item": "", "quantity": 0, "durability": 0},
+                                                    2: {"item": "", "quantity": 0, "durability": 0},
+                                                    3: {"item": "", "quantity": 0, "durability": 0},
+                                                    4: {"item": "", "quantity": 0, "durability": 0},
+                                                    5: {"item": "", "quantity": 0, "durability": 0},
+                                                    6: {"item": "", "quantity": 0, "durability": 0},
+                                                    7: {"item": "", "quantity": 0, "durability": 0},
+                                                    8: {"item": "", "quantity": 0, "durability": 0}},
+                        "inventory": {0: {"item": "", "quantity": 0, "durability": 0},
+                                                    1: {"item": "", "quantity": 0, "durability": 0},
+                                                    2: {"item": "", "quantity": 0, "durability": 0},
+                                                    3: {"item": "", "quantity": 0, "durability": 0},
+                                                    4: {"item": "", "quantity": 0, "durability": 0},
+                                                    5: {"item": "", "quantity": 0, "durability": 0},
+                                                    6: {"item": "", "quantity": 0, "durability": 0},
+                                                    7: {"item": "", "quantity": 0, "durability": 0},
+                                                    8: {"item": "", "quantity": 0, "durability": 0},
+                                                    9: {"item": "", "quantity": 0, "durability": 0},
+                                                    10: {"item": "", "quantity": 0, "durability": 0},
+                                                    11: {"item": "", "quantity": 0, "durability": 0},
+                                                    12: {"item": "", "quantity": 0, "durability": 0},
+                                                    13: {"item": "", "quantity": 0, "durability": 0},
+                                                    14: {"item": "", "quantity": 0, "durability": 0},
+                                                    15: {"item": "", "quantity": 0, "durability": 0},
+                                                    16: {"item": "", "quantity": 0, "durability": 0},
+                                                    17: {"item": "", "quantity": 0, "durability": 0},
+                                                    18: {"item": "", "quantity": 0, "durability": 0},
+                                                    19: {"item": "", "quantity": 0, "durability": 0},
+                                                    20: {"item": "", "quantity": 0, "durability": 0},
+                                                    21: {"item": "", "quantity": 0, "durability": 0},
+                                                    22: {"item": "", "quantity": 0, "durability": 0},
+                                                    23: {"item": "", "quantity": 0, "durability": 0},
+                                                    24: {"item": "", "quantity": 0, "durability": 0},
+                                                    25: {"item": "", "quantity": 0, "durability": 0},
+                                                    26: {"item": "", "quantity": 0, "durability": 0}},
+                        "crafting": {0: {"item": "", "quantity": 0, "durability": 0},
+                                                    1: {"item": "", "quantity": 0, "durability": 0},
+                                                    2: {"item": "", "quantity": 0, "durability": 0},
+                                                    3: {"item": "", "quantity": 0, "durability": 0},
+                                                    4: {"item": "", "quantity": 0, "durability": 0}}}
+
+CURSOR =  {"x": 0, "y": 0}
+
+
+
+
 def paintInventory(img, inventory, cursorLocation):
     blockpath = "../assets/blockImages/"
     with open(blockpath + "colors.json") as json_file:
@@ -165,53 +220,8 @@ class Agent:
        self.model = self._build_model()
        self.invClassifier = IC.InvClassifier()
        
-       self.inventory = {"armor": {0: {"item": "", "quantity": 0, "durability": 0},
-                                  1: {"item": "", "quantity": 0, "durability": 0},
-                                  2: {"item": "", "quantity": 0, "durability": 0},
-                                  3: {"item": "", "quantity": 0, "durability": 0},
-                                  4: {"item": "", "quantity": 0, "durability": 0}},
-                        "item_bar": {0: {"item": "", "quantity": 0, "durability": 0},
-                                                    1: {"item": "", "quantity": 0, "durability": 0},
-                                                    2: {"item": "", "quantity": 0, "durability": 0},
-                                                    3: {"item": "", "quantity": 0, "durability": 0},
-                                                    4: {"item": "", "quantity": 0, "durability": 0},
-                                                    5: {"item": "", "quantity": 0, "durability": 0},
-                                                    6: {"item": "", "quantity": 0, "durability": 0},
-                                                    7: {"item": "", "quantity": 0, "durability": 0},
-                                                    8: {"item": "", "quantity": 0, "durability": 0}},
-                        "inventory": {0: {"item": "", "quantity": 0, "durability": 0},
-                                                    1: {"item": "", "quantity": 0, "durability": 0},
-                                                    2: {"item": "", "quantity": 0, "durability": 0},
-                                                    3: {"item": "", "quantity": 0, "durability": 0},
-                                                    4: {"item": "", "quantity": 0, "durability": 0},
-                                                    5: {"item": "", "quantity": 0, "durability": 0},
-                                                    6: {"item": "", "quantity": 0, "durability": 0},
-                                                    7: {"item": "", "quantity": 0, "durability": 0},
-                                                    8: {"item": "", "quantity": 0, "durability": 0},
-                                                    9: {"item": "", "quantity": 0, "durability": 0},
-                                                    10: {"item": "", "quantity": 0, "durability": 0},
-                                                    11: {"item": "", "quantity": 0, "durability": 0},
-                                                    12: {"item": "", "quantity": 0, "durability": 0},
-                                                    13: {"item": "", "quantity": 0, "durability": 0},
-                                                    14: {"item": "", "quantity": 0, "durability": 0},
-                                                    15: {"item": "", "quantity": 0, "durability": 0},
-                                                    16: {"item": "", "quantity": 0, "durability": 0},
-                                                    17: {"item": "", "quantity": 0, "durability": 0},
-                                                    18: {"item": "", "quantity": 0, "durability": 0},
-                                                    19: {"item": "", "quantity": 0, "durability": 0},
-                                                    20: {"item": "", "quantity": 0, "durability": 0},
-                                                    21: {"item": "", "quantity": 0, "durability": 0},
-                                                    22: {"item": "", "quantity": 0, "durability": 0},
-                                                    23: {"item": "", "quantity": 0, "durability": 0},
-                                                    24: {"item": "", "quantity": 0, "durability": 0},
-                                                    25: {"item": "", "quantity": 0, "durability": 0},
-                                                    26: {"item": "", "quantity": 0, "durability": 0}},
-                        "crafting": {0: {"item": "", "quantity": 0, "durability": 0},
-                                                    1: {"item": "", "quantity": 0, "durability": 0},
-                                                    2: {"item": "", "quantity": 0, "durability": 0},
-                                                    3: {"item": "", "quantity": 0, "durability": 0},
-                                                    4: {"item": "", "quantity": 0, "durability": 0}}}
-       self.cursorLocation = {"x": 0, "y": 0}
+       self.inventory = INVENTORY
+       self.cursor = CURSOR
        
        print("Agent Initialized. (Time Taken:", time.time()-start, ")")
        
