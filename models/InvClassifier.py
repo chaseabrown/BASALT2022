@@ -114,7 +114,7 @@ class InvClassifier:
         return model
     
     def _build_cursor_model(self):
-        model = GaussianNB()
+        model = core.Model(['cursor'])
         
         return model
     
@@ -133,11 +133,10 @@ class InvClassifier:
         else:
             dataset = core.Dataset('../assets/datasets/Cursor Over Inventory/train')
             loader = core.DataLoader(dataset, batch_size=2, shuffle=True)
-            model = core.Model(['cursor'])
             
             valdataset = core.Dataset('../assets/datasets/Cursor Over Inventory/val')
             
-            losses = model.fit(loader, valdataset, epochs=10, learning_rate=0.001, 
+            losses = self.cursor_model.fit(loader, valdataset, epochs=10, learning_rate=0.001, 
                                lr_step_size=5, verbose=True)
             
             self.cursor_model = model
