@@ -94,9 +94,9 @@ def load_data():
                             for i in range(0, len(gameMoves)):
 
                                 startImage = gameFrames[i].astype('float32')
-                                startImage /= 255 
+                                startImage /= 255
                                 endImage = gameFrames[i+1].astype('float32')
-                                endImage /= 255 
+                                endImage /= 255
                                 frames.append((startImage, endImage))
                                 hotbar = 0
                                 for key in gameMoves[i].keys():
@@ -106,7 +106,7 @@ def load_data():
                                     elif "hotbar" in key:
                                         if gameMoves[i][key] == 1:
                                             hotbar = int(key.split(".")[1])
-                                            
+
                                     else:
                                         moves[key].append(gameMoves[i][key])
                                 moves["hotbar"].append(hotbar)
@@ -114,7 +114,7 @@ def load_data():
                                 counter += 1
                         except Exception as e:
                                 print(e)
-        
+
         print("Sampling...")
         split = train_test_split(frames, moves["index"], test_size=0.25, random_state=42)
         (trainImages, testImages, trainMoves, testMoves) = split
@@ -138,7 +138,7 @@ def load_data():
             trainMoves["camera1"].append(moves["camera1"][trainIndexes[i]])
             trainMoves["camera2"].append(moves["camera2"][trainIndexes[i]])
             trainMoves["ESC"].append(moves["ESC"][trainIndexes[i]])
-        
+
         for i in range(0, len(testIndexes)):
             testMoves["attack"].append(moves["attack"][testIndexes[i]])
             testMoves["forward"].append(moves["forward"][testIndexes[i]])
@@ -183,9 +183,9 @@ def load_data():
 
 
 class MoveClassifier:
-    
-    def __init__(self, pretrained = True, download_data = False):   
-                
+
+    def __init__(self, pretrained = True, download_data = False):
+
         if pretrained and download_data:
             self._download_weights()
 
@@ -226,8 +226,8 @@ class MoveClassifier:
         print("Starting Training...")
         self._train()
         print("Training Complete!")
-      
-    
+
+
     def _create_cnn(self, width, height, depth, filters=(16, 32, 64), regress=False):
         #https://pyimagesearch.com/2019/02/04/keras-multiple-inputs-and-mixed-data/
         # initialize the input shape and channel dimension, assuming
@@ -264,8 +264,8 @@ class MoveClassifier:
             model = Model(inputs, x)
             # return the CNN
             return model
-    
-    
+
+
 
 
     def _build_model(self, regress=False):
@@ -281,18 +281,11 @@ class MoveClassifier:
 
         opt = Adam(lr=1e-3, decay=1e-3 / 200)
         model.compile(loss="mean_absolute_percentage_error", optimizer=opt)
-        
+
         return model
-    
+
     def _train(self, epochs=100, batch_size=8):
-        
-        print("Training Attack Model...")
-        self.attackModel.fit(x=[self.xStartTrain, self.xEndTrain], y=np.array(list(map(int,self.yTrain["attack"])), np.int64),
-                       validation_data=([self.xStartVal, self.xEndVal], np.array(list(map(int,self.yVal["attack"])), np.int64)),
-                       epochs=epochs, 
-                       batch_size=batch_size)
-        self.save_model(self.attackModel, "attack.h5")
-        
+
         print("Training Forward Model...")
         self.forwardModel.fit(x=[self.xStartTrain, self.xEndTrain], y=np.array(list(map(int,self.yTrain["forward"])), np.int64),
                         validation_data=([self.xStartVal, self.xEndVal], np.array(list(map(int,self.yVal["forward"])), np.int64)),
@@ -388,15 +381,22 @@ class MoveClassifier:
         self.escModel.fit(x=[self.xStartTrain, self.xEndTrain], y=np.array(list(map(int,self.yTrain["ESC"])), np.int64),
                         validation_data=([self.xStartVal, self.xEndVal], np.array(list(map(int,self.yVal["ESC"])), np.int64)),
                         epochs=epochs,
-                        batch_size=batch_size) 
+                        batch_size=batch_size)
         self.save_model(self.escModel, "ESC.h5")
-    
+
+        print("Training Attack Model...")
+        self.attackModel.fit(x=[self.xStartTrain, self.xEndTrain], y=np.array(list(map(int,self.yTrain["attack"])), np.int64),
+                       validation_data=([self.xStartVal, self.xEndVal], np.array(list(map(int,self.yVal["attack"])), np.int64)),
+                       epochs=epochs,
+                       batch_size=batch_size)
+        self.save_model(self.attackModel, "attack.h5")
+
     def save_model(self, model, name):
         model.save(name)
 
     def predict_move(self, startFrame, endFrame):
-        move = {"attack": self.attackModel.predict([startFrame, endFrame]), 
-                "forward": self.forwardModel.predict([startFrame, endFrame]), 
+        move = {"attack": self.attackModel.predict([startFrame, endFrame]),
+                "forward": self.forwardModel.predict([startFrame, endFrame]),
                 "back": self.backModel.predict([startFrame, endFrame]),
                 "left": self.leftModel.predict([startFrame, endFrame]),
                 "right": self.rightModel.predict([startFrame, endFrame]),
@@ -412,7 +412,3 @@ class MoveClassifier:
         self.model.predict([startFrame, endFrame])
 
         return move
-
-
-    
-    
