@@ -6,25 +6,25 @@ Created on Fri Jul  1 16:08:47 2022
 @author: chasebrown
 """
 
-# import the necessary packages
-from tensorflow.keras.layers import BatchNormalization
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import MaxPooling2D
-from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import Input
-from tensorflow.keras.models import Model
+import os
+os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
+from keras.layers import BatchNormalization
+from keras.layers import Conv2D
+from keras.layers import MaxPooling2D
+from keras.layers import Activation
+from keras.layers import Dropout
+from keras.layers import Dense
+from keras.layers import Flatten
+from keras.layers import Input
+from keras.models import Model
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.layers import concatenate
+from keras.layers import Dense
+from keras.models import Model
+from keras.optimizers import Adam
+from keras.layers import concatenate
 import numpy as np
 import argparse
 import locale
-import os
 import cv2
 import json
 from tqdm import tqdm
@@ -79,40 +79,41 @@ def load_data():
         frames = []
         moves = {"index": [], "attack": [], "forward": [], "back": [], "left": [], "right": [], "jump": [], "sneak": [], "sprint": [], "use": [], "drop": [], "inventory": [], "hotbar": [], "camera1": [], "camera2": [], "ESC": []}
         inputShape = (64, 64, 3)
-        counter = 0
-        for challenge in challenges:
+        for challenge in challenges[:2]:
+            counter = 0
             for file in tqdm(os.listdir(path + challenge + "/")):
                 if ".txt" in file:
-                    if counter < 1:
-                        counter += 1
-                        stamp = file.split(".")[0]
-                        videoFile = os.listdir(path + challenge + "/" + stamp + ".mp4/")[0]
-                        gameMoves = getMoves(path + challenge + "/" + file)
-                        gameFrames, width, height = getFrames(path + challenge + "/" + stamp + ".mp4/" + videoFile)
-                        inputShape = (width, height, 3)
+                    if counter < 5:
+                        try:
+                            stamp = file.split(".")[0]
+                            videoFile = os.listdir(path + challenge + "/" + stamp + ".mp4/")[0]
+                            gameMoves = getMoves(path + challenge + "/" + file)
+                            gameFrames, width, height = getFrames(path + challenge + "/" + stamp + ".mp4/" + videoFile)
+                            inputShape = (width, height, 3)
 
-                        for i in range(0, len(gameMoves)):
+                            for i in range(0, len(gameMoves)):
 
-                            startImage = gameFrames[i].astype('float32')
-                            startImage /= 255 
-                            endImage = gameFrames[i+1].astype('float32')
-                            endImage /= 255 
-                            frames.append((startImage, endImage))
-                            hotbar = 0
-                            for key in gameMoves[i].keys():
-                                if key == "camera":
-                                    moves["camera1"].append(gameMoves[i][key][0])
-                                    moves["camera2"].append(gameMoves[i][key][1])
-                                elif "hotbar" in key:
-                                    if gameMoves[i][key] == 1:
-                                        hotbar = int(key.split(".")[1])
-                                        
-                                else:
-                                    moves[key].append(gameMoves[i][key])
-                            moves["hotbar"].append(hotbar)
-                            moves["index"].append(i)
-                    else:
-                        break    
+                                startImage = gameFrames[i].astype('float32')
+                                startImage /= 255 
+                                endImage = gameFrames[i+1].astype('float32')
+                                endImage /= 255 
+                                frames.append((startImage, endImage))
+                                hotbar = 0
+                                for key in gameMoves[i].keys():
+                                    if key == "camera":
+                                        moves["camera1"].append(gameMoves[i][key][0])
+                                        moves["camera2"].append(gameMoves[i][key][1])
+                                    elif "hotbar" in key:
+                                        if gameMoves[i][key] == 1:
+                                            hotbar = int(key.split(".")[1])
+                                            
+                                    else:
+                                        moves[key].append(gameMoves[i][key])
+                                moves["hotbar"].append(hotbar)
+                                moves["index"].append(i)
+                                counter += 1
+                        except Exception as e:
+                                print(e)
         
         print("Sampling...")
         split = train_test_split(frames, moves["index"], test_size=0.25, random_state=42)
@@ -278,12 +279,12 @@ class MoveClassifier:
 
         model = Model(inputs=[startCNN.input, endCNN.input], outputs=x)
 
-        opt = Adam(learning_rate=1e-3, decay=1e-3 / 200)
+        opt = Adam(lr=1e-3, decay=1e-3 / 200)
         model.compile(loss="mean_absolute_percentage_error", optimizer=opt)
         
         return model
     
-    def _train(self, epochs=10, batch_size=8):
+    def _train(self, epochs=100, batch_size=8):
         
         print("Training Attack Model...")
         self.attackModel.fit(x=[self.xStartTrain, self.xEndTrain], y=np.array(list(map(int,self.yTrain["attack"])), np.int64),
