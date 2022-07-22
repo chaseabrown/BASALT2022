@@ -71,10 +71,39 @@ def getMoves(movesPath):
                 print(e)
     return listOfMoves
 
-def load_data():
-        challenges = ["MineRLBasaltFindCave-v0", "MineRLBasaltBuildVillageHouse-v0", "MineRLBasaltCreateVillageAnimalPen-v0", "MineRLBasaltMakeWaterfall-v0"]
-        path = "../assets/datasets/Agent Moves/"
+def gatherData(dataPathList):
+    samples = []
+    for dataPath in dataPathList:
+        for file in os.listdir(dataPath):
+            if file.endswith(".txt"):
+                try:
+                    videoFile = os.listdir(dataPath + file.split('.')[0] + ".mp4/")[0]
+                    sample = [dataPath + file.split('.')[0] + ".mp4/" + videoFile, dataPath + file]
+                    samples.append(sample)
+                except Exception as e:
+                    print(file, e)
+
+    return samples
+
+def load_data(dim = (32,32,32), batch_size = 32, n_classes = 6, n_channels = 1, shuffle = True):
+        dataPathList = ["../assets/datasets/Agent Moves/MineRLBasaltFindCave-v0/", 
+                        "../assets/datasets/Agent Moves/MineRLBasaltBuildVillageHouse-v0/", 
+                        "../assets/datasets/Agent Moves/MineRLBasaltCreateVillageAnimalPen-v0/", 
+                        "../assets/datasets/Agent Moves/MineRLBasaltMakeWaterfall-v0/"]
         #path = "/content/drive/MyDrive/BASALT2022/basalt-2022-behavioural-cloning-baseline-main/video/"
+
+
+        videoPaths, movePaths = gatherData(dataPathList) 
+        
+        params = {'dim': dim,
+          'batch_size': batch_size,
+          'n_classes': n_classes,
+          'n_channels': n_channels,
+          'shuffle': shuffle}
+
+        training_generator = DataGenerator(videoPaths['train'], movePaths, **params)
+        validation_generator = DataGenerator(videoPaths['validation'], movePaths, **params)
+
 
         frames = []
         moves = {"index": [], "attack": [], "forward": [], "back": [], "left": [], "right": [], "jump": [], "sneak": [], "sprint": [], "use": [], "drop": [], "inventory": [], "hotbar": [], "camera1": [], "camera2": [], "ESC": []}
@@ -94,9 +123,9 @@ def load_data():
                             for i in range(0, len(gameMoves)):
 
                                 startImage = gameFrames[i].astype('float32')
-                                startImage /= 255
+                                startImage /= 255 
                                 endImage = gameFrames[i+1].astype('float32')
-                                endImage /= 255
+                                endImage /= 255 
                                 frames.append((startImage, endImage))
                                 hotbar = 0
                                 for key in gameMoves[i].keys():
@@ -106,7 +135,7 @@ def load_data():
                                     elif "hotbar" in key:
                                         if gameMoves[i][key] == 1:
                                             hotbar = int(key.split(".")[1])
-
+                                            
                                     else:
                                         moves[key].append(gameMoves[i][key])
                                 moves["hotbar"].append(hotbar)
@@ -114,47 +143,8 @@ def load_data():
                                 counter += 1
                         except Exception as e:
                                 print(e)
-
+        
         print("Sampling...")
-        split = train_test_split(frames, moves["index"], test_size=0.25, random_state=42)
-        (trainImages, testImages, trainMoves, testMoves) = split
-        trainIndexes = trainMoves
-        testIndexes = testMoves
-        trainMoves = {"attack": [], "forward": [], "back": [], "left": [], "right": [], "jump": [], "sneak": [], "sprint": [], "use": [], "drop": [], "inventory": [], "hotbar": [], "camera1": [], "camera2": [], "ESC": []}
-        testMoves = {"attack": [], "forward": [], "back": [], "left": [], "right": [], "jump": [], "sneak": [], "sprint": [], "use": [], "drop": [], "inventory": [], "hotbar": [], "camera1": [], "camera2": [], "ESC": []}
-        for i in range(0, len(trainIndexes)):
-            trainMoves["attack"].append(moves["attack"][trainIndexes[i]])
-            trainMoves["forward"].append(moves["forward"][trainIndexes[i]])
-            trainMoves["back"].append(moves["back"][trainIndexes[i]])
-            trainMoves["left"].append(moves["left"][trainIndexes[i]])
-            trainMoves["right"].append(moves["right"][trainIndexes[i]])
-            trainMoves["jump"].append(moves["jump"][trainIndexes[i]])
-            trainMoves["sneak"].append(moves["sneak"][trainIndexes[i]])
-            trainMoves["sprint"].append(moves["sprint"][trainIndexes[i]])
-            trainMoves["use"].append(moves["use"][trainIndexes[i]])
-            trainMoves["drop"].append(moves["drop"][trainIndexes[i]])
-            trainMoves["inventory"].append(moves["inventory"][trainIndexes[i]])
-            trainMoves["hotbar"].append(moves["hotbar"][trainIndexes[i]])
-            trainMoves["camera1"].append(moves["camera1"][trainIndexes[i]])
-            trainMoves["camera2"].append(moves["camera2"][trainIndexes[i]])
-            trainMoves["ESC"].append(moves["ESC"][trainIndexes[i]])
-
-        for i in range(0, len(testIndexes)):
-            testMoves["attack"].append(moves["attack"][testIndexes[i]])
-            testMoves["forward"].append(moves["forward"][testIndexes[i]])
-            testMoves["back"].append(moves["back"][testIndexes[i]])
-            testMoves["left"].append(moves["left"][testIndexes[i]])
-            testMoves["right"].append(moves["right"][testIndexes[i]])
-            testMoves["jump"].append(moves["jump"][testIndexes[i]])
-            testMoves["sneak"].append(moves["sneak"][testIndexes[i]])
-            testMoves["sprint"].append(moves["sprint"][testIndexes[i]])
-            testMoves["use"].append(moves["use"][testIndexes[i]])
-            testMoves["drop"].append(moves["drop"][testIndexes[i]])
-            testMoves["inventory"].append(moves["inventory"][testIndexes[i]])
-            testMoves["hotbar"].append(moves["hotbar"][testIndexes[i]])
-            testMoves["camera1"].append(moves["camera1"][testIndexes[i]])
-            testMoves["camera2"].append(moves["camera2"][testIndexes[i]])
-            testMoves["ESC"].append(moves["ESC"][testIndexes[i]])
 
         xStartTrain = []
         xEndTrain = []
@@ -181,11 +171,64 @@ def load_data():
         return xStartTrain, xEndTrain, yTrain, xStartVal, xEndVal, yVal, inputShape
 
 
+class DataGenerator(keras.utils.Sequence):
+    'Generates data for Keras'
+    def __init__(self, list_IDs, labels, batch_size=32, dim=(32,32,32), n_channels=1,
+                 n_classes=10, shuffle=True):
+        'Initialization'
+        self.dim = dim
+        self.batch_size = batch_size
+        self.labels = labels
+        self.list_IDs = list_IDs
+        self.n_channels = n_channels
+        self.n_classes = n_classes
+        self.shuffle = shuffle
+        self.on_epoch_end()
+
+    def __len__(self):
+        'Denotes the number of batches per epoch'
+        return int(np.floor(len(self.list_IDs) / self.batch_size))
+
+    def __getitem__(self, index):
+        'Generate one batch of data'
+        # Generate indexes of the batch
+        indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
+
+        # Find list of IDs
+        list_IDs_temp = [self.list_IDs[k] for k in indexes]
+
+        # Generate data
+        X, y = self.__data_generation(list_IDs_temp)
+
+        return X, y
+
+    def on_epoch_end(self):
+        'Updates indexes after each epoch'
+        self.indexes = np.arange(len(self.list_IDs))
+        if self.shuffle == True:
+            np.random.shuffle(self.indexes)
+
+    def __data_generation(self, list_IDs_temp):
+        'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
+        # Initialization
+        X = np.empty((self.batch_size, *self.dim, self.n_channels))
+        y = np.empty((self.batch_size), dtype=int)
+
+        # Generate data
+        for i, ID in enumerate(list_IDs_temp):
+            # Store sample
+            X[i,] = np.load('data/' + ID + '.npy')
+
+            # Store class
+            y[i] = self.labels[ID]
+
+        return X, keras.utils.to_categorical(y, num_classes=self.n_classes)
+
 
 class MoveClassifier:
-
-    def __init__(self, pretrained = True, download_data = False):
-
+    
+    def __init__(self, pretrained = True, download_data = False):   
+                
         if pretrained and download_data:
             self._download_weights()
 
@@ -226,8 +269,7 @@ class MoveClassifier:
         print("Starting Training...")
         self._train()
         print("Training Complete!")
-
-
+      
     def _create_cnn(self, width, height, depth, filters=(16, 32, 64), regress=False):
         #https://pyimagesearch.com/2019/02/04/keras-multiple-inputs-and-mixed-data/
         # initialize the input shape and channel dimension, assuming
@@ -248,13 +290,13 @@ class MoveClassifier:
             x = BatchNormalization(axis=chanDim)(x)
             x = MaxPooling2D(pool_size=(2, 2))(x)
             # flatten the volume, then FC => RELU => BN => DROPOUT
-            x = Flatten()(x)
+            x = Flatten()(x) 
             x = Dense(16)(x)
             x = Activation("relu")(x)
             x = BatchNormalization(axis=chanDim)(x)
             x = Dropout(0.5)(x)
-            # apply another FC layer, this one to match the number of nodes
-            # coming out of the MLP
+
+
             x = Dense(4)(x)
             x = Activation("relu")(x)
             # check to see if the regression node should be added
@@ -264,10 +306,7 @@ class MoveClassifier:
             model = Model(inputs, x)
             # return the CNN
             return model
-
-
-
-
+    
     def _build_model(self, regress=False):
         startCNN = self._create_cnn(self.inputShape[0], self.inputShape[1], self.inputShape[2], regress=regress)
         endCNN = self._create_cnn(self.inputShape[0], self.inputShape[1], self.inputShape[2], regress=regress)
@@ -281,11 +320,25 @@ class MoveClassifier:
 
         opt = Adam(lr=1e-3, decay=1e-3 / 200)
         model.compile(loss="mean_absolute_percentage_error", optimizer=opt)
-
+        
         return model
+    
+    def _fit_generator(train_gen, val_gen, multiprocessing = False, workers = 1):
+        if multiprocessing:
+            train_gen = MultiprocessingGenerator(train_gen)
+            val_gen = MultiprocessingGenerator(val_gen)
+        return train_gen.fit_generator(val_gen, workers = workers)
+
 
     def _train(self, epochs=100, batch_size=8):
-
+        
+        print("Training Attack Model...")
+        self.attackModel.fit(x=[self.xStartTrain, self.xEndTrain], y=np.array(list(map(int,self.yTrain["attack"])), np.int64),
+                       validation_data=([self.xStartVal, self.xEndVal], np.array(list(map(int,self.yVal["attack"])), np.int64)),
+                       epochs=epochs, 
+                       batch_size=batch_size)
+        self.save_model(self.attackModel, "attack.h5")
+        
         print("Training Forward Model...")
         self.forwardModel.fit(x=[self.xStartTrain, self.xEndTrain], y=np.array(list(map(int,self.yTrain["forward"])), np.int64),
                         validation_data=([self.xStartVal, self.xEndVal], np.array(list(map(int,self.yVal["forward"])), np.int64)),
@@ -381,22 +434,15 @@ class MoveClassifier:
         self.escModel.fit(x=[self.xStartTrain, self.xEndTrain], y=np.array(list(map(int,self.yTrain["ESC"])), np.int64),
                         validation_data=([self.xStartVal, self.xEndVal], np.array(list(map(int,self.yVal["ESC"])), np.int64)),
                         epochs=epochs,
-                        batch_size=batch_size)
+                        batch_size=batch_size) 
         self.save_model(self.escModel, "ESC.h5")
-
-        print("Training Attack Model...")
-        self.attackModel.fit(x=[self.xStartTrain, self.xEndTrain], y=np.array(list(map(int,self.yTrain["attack"])), np.int64),
-                       validation_data=([self.xStartVal, self.xEndVal], np.array(list(map(int,self.yVal["attack"])), np.int64)),
-                       epochs=epochs,
-                       batch_size=batch_size)
-        self.save_model(self.attackModel, "attack.h5")
-
+    
     def save_model(self, model, name):
         model.save(name)
 
     def predict_move(self, startFrame, endFrame):
-        move = {"attack": self.attackModel.predict([startFrame, endFrame]),
-                "forward": self.forwardModel.predict([startFrame, endFrame]),
+        move = {"attack": self.attackModel.predict([startFrame, endFrame]), 
+                "forward": self.forwardModel.predict([startFrame, endFrame]), 
                 "back": self.backModel.predict([startFrame, endFrame]),
                 "left": self.leftModel.predict([startFrame, endFrame]),
                 "right": self.rightModel.predict([startFrame, endFrame]),
@@ -412,3 +458,7 @@ class MoveClassifier:
         self.model.predict([startFrame, endFrame])
 
         return move
+
+
+    
+    
