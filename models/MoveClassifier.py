@@ -57,24 +57,29 @@ def gatherData(dataPathList, framesViewed):
             if not ".DS_Store" in folder:
                 newMoves = pd.read_csv(dataPath + folder + "/moves.csv")
                 for index, move in newMoves.iterrows():
+
                     framesToInclude = []
+                    end = False
                     for i in range(0, framesViewed):
+                        if not os.path.exists(dataPath + folder + "/" + str(int(move["startImage"] + i)) + ".jpg"):
+                            end = True
                         framesToInclude.append(dataPath + folder + "/" + str(int(move["startImage"] + i)) + ".jpg")
-                    images.append(framesToInclude)
-                    labels["attack"].append(move["attack"])
-                    labels["forward"].append(move["forward"])
-                    labels["back"].append(move["back"])
-                    labels["left"].append(move["left"])
-                    labels["right"].append(move["right"])
-                    labels["jump"].append(move["jump"])
-                    labels["sneak"].append(move["sneak"])
-                    labels["sprint"].append(move["sprint"])
-                    labels["use"].append(move["use"])
-                    labels["drop"].append(move["drop"])
-                    labels["inventory"].append(move["inventory"])
-                    labels["hotbar"].append(move["hotbar"])
-                    labels["camera1"].append(move["camera1"])
-                    labels["camera2"].append(move["camera2"])
+                    if not end:
+                        images.append(framesToInclude)
+                        labels["attack"].append(move["attack"])
+                        labels["forward"].append(move["forward"])
+                        labels["back"].append(move["back"])
+                        labels["left"].append(move["left"])
+                        labels["right"].append(move["right"])
+                        labels["jump"].append(move["jump"])
+                        labels["sneak"].append(move["sneak"])
+                        labels["sprint"].append(move["sprint"])
+                        labels["use"].append(move["use"])
+                        labels["drop"].append(move["drop"])
+                        labels["inventory"].append(move["inventory"])
+                        labels["hotbar"].append(move["hotbar"])
+                        labels["camera1"].append(move["camera1"])
+                        labels["camera2"].append(move["camera2"])
                     
     return images, labels
 
@@ -104,8 +109,8 @@ class MoveClassifier:
         X_val = images[int(len(images) * 0.8):]
         Y_val = labels[int(len(labels) * 0.8):]
 
-        self.generator = Generator(X_train, Y_train, batch_size=16)
-        self.val_generator = Generator(X_val, Y_val, batch_size=16)
+        self.generator = Generator(X_train, Y_train, batch_size=32)
+        self.val_generator = Generator(X_val, Y_val, batch_size=32)
 
         self.inputShape = (640, 360, 3)
 
