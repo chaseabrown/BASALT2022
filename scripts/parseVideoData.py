@@ -71,12 +71,25 @@ def gatherData(dataPathList):
 
     return samples
 
+
+
 #Process to be run in parallel
 def workerTask(samples, i):
     for sample in tqdm(samples):
         savePath = '/'.join(sample[0].split('/')[:6]).replace("Agent Moves", "Move Classifier Data").replace(".mp4", "") + "/"
         frames, width, height = getFrames(sample[0])
-        moves = pd.DataFrame.from_dict(getMoves(sample[1]))
+        
+        moves = getMoves(sample[1])
+        moves
+        hotbar = 1
+        for move in moves:
+            move.update({"hotbar": hotbar})
+            for key in move.keys():
+                if "hotbar." in key and move[key]==1:
+                    hotbar = int(key[-1])
+        
+        moves = pd.DataFrame.from_dict(moves)
+        
         
         
         if not os.path.exists(savePath):
@@ -84,6 +97,7 @@ def workerTask(samples, i):
             
         for index in range(0, len(moves)):
             Image.fromarray(frames[index]).save(savePath + str(index) + ".jpg")
+        moves = moves.drop(['hotbar.1', 'hotbar.2', 'hotbar.3', 'hotbar.4', 'hotbar.5', 'hotbar.6', 'hotbar.7', 'hotbar.8', 'hotbar.9'], axis=1)
         moves.to_csv(savePath + "moves.csv", index=False)
             
 #Runs body in i parallel fragements
