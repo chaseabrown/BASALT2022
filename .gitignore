@@ -1,7 +1,8 @@
-
 *.pth
 *.mp4
 *.model
 *.weights
 *.h5
 *.jpg
+assets/datasets/
+model_tests/

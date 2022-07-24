@@ -218,7 +218,7 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
         # Load Test Data
         testImages = []
         for x in tqdm(X_test):
-            startImages.append(processImage(x[1]))
+            testImages.append(processImage(x[1]))
         testImages = np.array(testImages, np.float32)
 
         # Time Check and Update User
