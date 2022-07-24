@@ -1,9 +1,0 @@
-2022-07-11 20:28:19 chase2-VirtualBox process_watcher[1900] INFO Process watcher started between parent 1883 and child 1885 
-2022-07-11 20:30:40 chase2-VirtualBox process_watcher[1900] INFO Parent is not running, hence we need terminate the child.
-2022-07-11 20:30:40 chase2-VirtualBox process_watcher[1900] INFO About to reap process tree of 1885:launchClient.sh:/usr/bin/bash i sleeping, owner 780, printing process tree status in termination order:
-2022-07-11 20:30:40 chase2-VirtualBox process_watcher[1900] INFO 	-1889:java:/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java i sleeping, owner 1885
-2022-07-11 20:30:40 chase2-VirtualBox process_watcher[1900] INFO 	-1885:launchClient.sh:/usr/bin/bash i sleeping, owner 780
-2022-07-11 20:30:40 chase2-VirtualBox process_watcher[1900] INFO Trying to SIGTERM 1889:java:/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java i sleeping, owner 1885
-2022-07-11 20:30:45 chase2-VirtualBox process_watcher[1900] INFO Process 1889 survived SIGTERM; trying SIGKILL on 1889:java:/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java i sleeping, owner 1885
-2022-07-11 20:30:45 chase2-VirtualBox process_watcher[1900] INFO Process psutil.Process(pid=1889, name='java', status='terminated', started='20:28:18') terminated with exit code None
-2022-07-11 20:30:45 chase2-VirtualBox process_watcher[1900] INFO Process psutil.Process(pid=1885, name='launchClient.sh', status='terminated', started='20:28:18') does not exist or is zombie.
