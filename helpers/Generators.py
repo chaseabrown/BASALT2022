@@ -3,7 +3,35 @@ import PIL
 from random import shuffle
 import random
 import keras
+import cv2
 import math
+
+def getFrames(videoPath, startFrame, numFrames):
+    cap = cv2.VideoCapture(videoPath)
+    frameCount = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    cap.set(1,startFrame)
+    frameWidth = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frameHeight = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    buf = np.empty((
+        numFrames,
+        frameHeight,
+        frameWidth,
+        3), np.dtype('uint8'))
+
+    fc = startFrame
+    ret = True
+
+    counter = 0
+    while (fc < startFrame + numFrames):
+        
+        ret, frame = cap.read()
+        buf[counter] = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        fc += 1
+        counter += 1
+
+    cap.release()
+    return buf
 
 class Generator2Images(keras.utils.Sequence):
     
@@ -21,9 +49,8 @@ class Generator2Images(keras.utils.Sequence):
         
         self.n = len(self.labels)
 
+    def __get_input(self, image):
         
-    def __get_input(self, path):
-        image = PIL.Image.open(path)
         image.thumbnail(self.imageSize, PIL.Image.ANTIALIAS)
         image = np.array(image)
         image = image.astype('float32')
@@ -65,9 +92,10 @@ class Generator2Images(keras.utils.Sequence):
         
         startImages = []
         endImages = []
-        for imagePaths in imageBatch:
-            startImages.append(self.__get_input(imagePaths[0]))
-            endImages.append(self.__get_input(imagePaths[1]))
+        for path, startFrame in imageBatch:
+            frames = getFrames(path, startFrame, 2)
+            startImages.append(self.__get_input(PIL.Image.fromarray(frames[0])))
+            endImages.append(self.__get_input(PIL.Image.fromarray(frames[1])))
         
         X1, X2, Y = self.__get_output(startImages, endImages, labelBatch)
 
@@ -91,9 +119,8 @@ class GeneratorStartImage(keras.utils.Sequence):
         self.n = len(self.labels)
 
         
-    def __get_input(self, path):
-
-        image = PIL.Image.open(path)
+    def __get_input(self, image):
+        
         image.thumbnail(self.imageSize, PIL.Image.ANTIALIAS)
         image = np.array(image)
         image = image.astype('float32')
@@ -133,8 +160,9 @@ class GeneratorStartImage(keras.utils.Sequence):
         # Generates data containing batch_size samples
         
         startImages = []
-        for imagePaths in imageBatch:
-            startImages.append(self.__get_input(imagePaths[0]))
+        for path, startFrame in imageBatch:
+            frames = getFrames(path, startFrame, 1)
+            startImages.append(self.__get_input(PIL.Image.fromarray(frames[0])))
         
         X1, Y = self.__get_output(startImages, labelBatch)
 
@@ -157,9 +185,8 @@ class GeneratorEndImage(keras.utils.Sequence):
         self.n = len(self.labels)
 
         
-    def __get_input(self, path):
-
-        image = PIL.Image.open(path)
+    def __get_input(self, image):
+        
         image.thumbnail(self.imageSize, PIL.Image.ANTIALIAS)
         image = np.array(image)
         image = image.astype('float32')
@@ -199,8 +226,9 @@ class GeneratorEndImage(keras.utils.Sequence):
         # Generates data containing batch_size samples
         
         startImages = []
-        for imagePaths in imageBatch:
-            startImages.append(self.__get_input(imagePaths[1]))
+        for path, startFrame in imageBatch:
+            frames = getFrames(path, startFrame + 1, 1)
+            startImages.append(self.__get_input(PIL.Image.fromarray(frames[0])))
         
         X1, Y = self.__get_output(startImages, labelBatch)
 

@@ -20,36 +20,27 @@ from MoveClassifier import MoveClassifier
 sys.path.append('../helpers')
 from Generators import Generator2Images, GeneratorEndImage
 
-# Takes in data paths and args and returns data for generators.
-def gatherData(dataPathList, framesViewed, FEATURE, BALANCED, SUBSET):
-    folders = []
-    images = []
-    labels = []
-    
-    for dataPath in dataPathList:
-        for folder in os.listdir(dataPath):
-            folders.append(dataPath + folder)
-            if not ".DS_Store" in folder:
-                newMoves = pd.read_csv(dataPath + folder + "/moves.csv")
-                if BALANCED:
-                    positives = newMoves[newMoves[FEATURE] == 1]
-                    negatives = newMoves[newMoves[FEATURE] == 0]
-                    if len(positives) > len(negatives):
-                        newMoves = pd.concat([negatives, positives[:len(negatives)]], ignore_index=True)
-                    else:
-                        newMoves = pd.concat([positives, negatives[:len(positives)]], ignore_index=True)
-                newMoves = newMoves.sample(frac=SUBSET, random_state=42)
-                for index, move in newMoves.iterrows():
 
-                    framesToInclude = []
-                    end = False
-                    for i in range(0, framesViewed):
-                        if not os.path.exists(dataPath + folder + "/" + str(int(move["startImage"] + i)) + ".jpg"):
-                            end = True
-                        framesToInclude.append(dataPath + folder + "/" + str(int(move["startImage"] + i)) + ".jpg")
-                    if not end:
-                        images.append(framesToInclude)
-                        labels.append(move[FEATURE])
+def gatherData(DATAPATH, FEATURE, BALANCED, SUBSET):
+    moves = pd.read_csv(DATAPATH + "/moves.csv")
+    if BALANCED:
+        positives = moves[moves[FEATURE] == 1]
+        negatives = moves[moves[FEATURE] == 0]
+        if len(positives) > len(negatives):
+            moves = pd.concat([moves, negatives.sample(len(positives) - len(negatives), replace=True)], ignore_index=True)
+        else:
+            moves = pd.concat([moves, positives.sample(len(negatives) - len(positives), replace=True)], ignore_index=True)
+    
+    if SUBSET:
+        moves = moves.sample(frac=SUBSET)
+
+    videoPaths = moves['videoFile'].tolist()
+    startFrames = moves['tick'].tolist()
+    labels = moves[FEATURE].tolist()
+
+    images = []
+    for i in range(len(videoPaths)):
+        images.append((videoPaths[i], startFrames[i]))
 
     print("# of Actions:", len(labels))
     return images, labels
@@ -84,8 +75,10 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
 
     # --------------------------------------------- Load Model and Data -------------------------------------------------
     # Set Output Path
-    outputPath = "../model_tests/Move Classifier/" + FEATURE + "-BAL" + str(BALANCED) + "-BS" + str(BATCHSIZE) + "-IW" + str(INPUTSHAPE[0]) + "-IH" + str(INPUTSHAPE[0]) + "-SUB" + str(SUBSET) + "/"
-    
+    outputPath = "../model_tests/Move Classifier/" + FEATURE + "-BAL" + str(BALANCED) + "-BS" + str(BATCHSIZE) + "-IW" + str(INPUTSHAPE[0]) + "-IH" + str(INPUTSHAPE[1]) + "-SUB" + str(SUBSET) + "/"
+    # Paths to Data
+    DATAPATH = "../assets/datasets/BASALT Contractor Dataset/"
+
     # Time Check and Update User
     trainDataTime = time.time()
     print("Loading Training Data...")
@@ -96,7 +89,7 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
     if FEATURE in ["attack", "forward", "backward", "left", "right", "jump", "sneak", "sprint", "use", "drop"]:
 
         # Load Data
-        images, labels = gatherData(DATAPATHS, 2, FEATURE, BALANCED, SUBSET)
+        images, labels = gatherData(DATAPATH, FEATURE, BALANCED, SUBSET)
 
         # Split Data
         X_train, Y_train, X_val, Y_val, X_test, Y_test = splitTrainData(images, labels)
@@ -113,7 +106,7 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
     # If Feature uses 1 images model and is categorically binary, use this
     else:
         # Load Data
-        images, labels = gatherData(DATAPATHS, 2, FEATURE, BALANCED, SUBSET)
+        images, labels = gatherData(DATAPATH, FEATURE, BALANCED, SUBSET)
 
         # Split Data
         X_train, Y_train, X_val, Y_val, X_test, Y_test = splitTrainData(images, labels)
@@ -231,17 +224,17 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
         for i in tqdm(range(0, len(predictions))):
             if int(Y_test[i]) == round(predictions[i][0]):
                 if Y_test[i] == 0:
-                    output.append({"image": X_test[i], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "TN"})
+                    output.append({"image": X_test[i][1], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "TN"})
                     TN += 1
                 else:
-                    output.append({"image": X_test[i], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "TP"})
+                    output.append({"image": X_test[i][1], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "TP"})
                     TP += 1
             else:
                 if Y_test[i] == 0:
-                    output.append({"image": X_test[i], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "FP"})
+                    output.append({"image": X_test[i][1], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "FP"})
                     FP += 1
                 else:
-                    output.append({"image": X_test[i], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "FN"})
+                    output.append({"image": X_test[i][1], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "FN"})
                     FN += 1
 
     # Time Check and Update User
@@ -271,12 +264,6 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
 # -------------------------------------------------- Initialize main -------------------------------------------------
 if __name__ == "__main__":
     parser = ArgumentParser("Train Move Classifier on Feature")
-
-    # Paths to Data
-    DATAPATHS = ["../assets/datasets/Move Classifier Data/MineRLBasaltFindCave-v0/", 
-                        "../assets/datasets/Move Classifier Data/MineRLBasaltBuildVillageHouse-v0/", 
-                        "../assets/datasets/Move Classifier Data/MineRLBasaltCreateVillageAnimalPen-v0/", 
-                        "../assets/datasets/Move Classifier Data/MineRLBasaltMakeWaterfall-v0/"]
 
     #Setup Arguments
     parser.add_argument("--feature", type=str, required=True)

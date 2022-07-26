@@ -28,7 +28,7 @@ def main(model, weights, env):
     display = Display(visible=0, size=(720, 480))
     display.start()
     datetimeSTR = datetime.now().strftime("D%Y-%m-%d-T%H-%M-%S-%f")
-    env = Recorder(env, "/content/drive/MyDrive/BASALT2022/basalt-2022-behavioural-cloning-baseline-main/video/" + envName + "/" + datetimeSTR + ".mp4", fps=30)
+    env = Recorder(env, "/content/drive/MyDrive/BASALT2022/basalt-2022-behavioural-cloning-baseline-main/video/" + envName + "/" + datetimeSTR + ".mp4", fps=20)
 
     print("---Loading model---")
     agent_parameters = pickle.load(open(model, "rb"))

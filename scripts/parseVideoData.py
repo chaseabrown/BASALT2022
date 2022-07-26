@@ -77,7 +77,7 @@ def gatherData(dataPathList):
 def workerTask(samples, i):
     for sample in tqdm(samples):
         savePath = '/'.join(sample[0].split('/')[:6]).replace("Agent Moves", "Move Classifier Data").replace(".mp4", "") + "/"
-        frames, width, height = getFrames(sample[0])
+        #frames, width, height = getFrames(sample[0])
         
         moves = getMoves(sample[1])
         moves
@@ -95,8 +95,8 @@ def workerTask(samples, i):
         if not os.path.exists(savePath):
             os.makedirs(savePath)
             
-        for index in range(0, len(moves)):
-            Image.fromarray(frames[index]).save(savePath + str(index) + ".jpg")
+        #for index in range(0, len(moves)):
+        #    Image.fromarray(frames[index]).save(savePath + str(index) + ".jpg")
         moves = moves.drop(['hotbar.1', 'hotbar.2', 'hotbar.3', 'hotbar.4', 'hotbar.5', 'hotbar.6', 'hotbar.7', 'hotbar.8', 'hotbar.9'], axis=1)
         moves.to_csv(savePath + "moves.csv", index=False)
             
@@ -115,10 +115,10 @@ def runBlocks(cores, samples):
 
 
 def main():
-    dataPathList = ["../assets/datasets/Agent Moves/MineRLBasaltFindCave-v0/", 
-                            "../assets/datasets/Agent Moves/MineRLBasaltBuildVillageHouse-v0/", 
-                            "../assets/datasets/Agent Moves/MineRLBasaltCreateVillageAnimalPen-v0/", 
-                            "../assets/datasets/Agent Moves/MineRLBasaltMakeWaterfall-v0/"]
+    dataPathList = ["../assets/datasets/BASALT Contractor Dataset/MineRLBasaltFindCave-v0/", 
+                            "../assets/datasets/BASALT Contractor Dataset/MineRLBasaltBuildVillageHouse-v0/", 
+                            "../assets/datasets/BASALT Contractor Dataset/MineRLBasaltCreateVillageAnimalPen-v0/", 
+                            "../assets/datasets/BASALT Contractor Dataset/MineRLBasaltMakeWaterfall-v0/"]
     
     samples = gatherData(dataPathList)
     
