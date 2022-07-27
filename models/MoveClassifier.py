@@ -30,6 +30,7 @@ import random
 sys.stderr = stderr
 
 
+
 class MoveClassifier:
     
     def __init__(self, inputShape, pretrained = True, download_data = False):   
@@ -46,32 +47,33 @@ class MoveClassifier:
         inputs = Input(shape=inputShape)
         # loop over the number of filters
         for (i, f) in enumerate(filters):
-            # if this is the first CONV layer then set the input
-            # appropriately
-            if i == 0:
-                x = inputs
-            # CONV => RELU => BN => POOL
-            x = Conv2D(f, (3, 3), padding="same")(x)
-            x = Activation("relu")(x)
-            x = BatchNormalization(axis=chanDim)(x)
-            x = MaxPooling2D(pool_size=(2, 2))(x)
-            # flatten the volume, then FC => RELU => BN => DROPOUT
-            x = Flatten()(x) 
-            x = Dense(16)(x)
-            x = Activation("relu")(x)
-            x = BatchNormalization(axis=chanDim)(x)
-            x = Dropout(0.5)(x)
+          # if this is the first CONV layer then set the input
+          # appropriately
+          if i == 0:
+              x = inputs
+          # CONV => RELU => BN => POOL
+          x = Conv2D(f, (3, 3), padding="same")(x)
+          x = Activation("relu")(x)
+          x = BatchNormalization(axis=chanDim)(x)
+          x = MaxPooling2D(pool_size=(2, 2))(x)
+        x = SpatialDropout2D(0.2)(x)
+        # flatten the volume, then FC => RELU => BN => DROPOUT
+        x = Flatten()(x) 
+        x = Dense(16)(x)
+        x = Activation("relu")(x)
+        x = BatchNormalization(axis=chanDim)(x)
+        x = Dropout(0.5)(x)
 
 
-            x = Dense(4)(x)
-            x = Activation("relu")(x)
-            # check to see if the regression node should be added
-            if regress:
-                x = Dense(1, activation="linear")(x)
-            # construct the CNN
-            model = Model(inputs, x)
-            # return the CNN
-            return model
+        x = Dense(4)(x)
+        x = Activation("relu")(x)
+        # check to see if the regression node should be added
+        if regress:
+            x = Dense(1, activation="linear")(x)
+        # construct the CNN
+        model = Model(inputs, x)
+        # return the CNN
+        return model
 
     def build_model_2Images(self, regress=False):
         startCNN = self._create_cnn(self.inputShape[0], self.inputShape[1], self.inputShape[2], regress=regress)
@@ -87,7 +89,7 @@ class MoveClassifier:
 
         model = Model(inputs=[startCNN.input, endCNN.input], outputs=x)
 
-        opt = Adam(lr=1e-3, decay=1e-3 / 200)
+        opt = Adam(lr=1e-2, decay=1e-3 / 200)
         model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
             
         model.summary()
@@ -118,7 +120,7 @@ class MoveClassifier:
                 workers=6,
                 epochs=epochs)
     
-    def save_model(self, model, name):
+    def load_model(self, model, name):
         model
 
     def predict_move(self, startFrame, endFrame):

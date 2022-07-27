@@ -2,11 +2,11 @@ import numpy as np
 import PIL
 from random import shuffle
 import random
-import keras
+import tensorflow
 import cv2
 import math
 
-def getFrames(videoPath, startFrame, numFrames):
+def getFrames(videoPath, startFrame, numFrames, COLOR):
     cap = cv2.VideoCapture(videoPath)
     frameCount = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     cap.set(1,startFrame)
@@ -22,19 +22,23 @@ def getFrames(videoPath, startFrame, numFrames):
     while (fc < startFrame + numFrames):
         
         ret, frame = cap.read()
-        buf.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        if COLOR:
+          buf.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        else:
+          buf.append(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
         fc += 1
         counter -= 1
 
     cap.release()
     return buf
 
-class Generator2Images(keras.utils.Sequence):
+class Generator2Images(tensorflow.keras.utils.Sequence):
     
     def __init__(self, images, labels,
                  batch_size,
                  inputShape=(640, 360, 3),
-                 shuffle=True):
+                 shuffle=True,
+                 COLOR=True):
 
         self.images = images
         self.labels = labels
@@ -42,6 +46,7 @@ class Generator2Images(keras.utils.Sequence):
         self.inputShape = inputShape
         self.shuffle = shuffle
         self.imageSize = inputShape[0], inputShape[1]
+        self.COLOR = COLOR
         
         self.n = len(self.labels)
 
@@ -89,7 +94,7 @@ class Generator2Images(keras.utils.Sequence):
         startImages = []
         endImages = []
         for path, startFrame in imageBatch:
-            frames = getFrames(path, startFrame, 2)
+            frames = getFrames(path, startFrame, 2, self.COLOR)
             startImages.append(self.__get_input(PIL.Image.fromarray(frames[0])))
             endImages.append(self.__get_input(PIL.Image.fromarray(frames[1])))
         
@@ -98,12 +103,13 @@ class Generator2Images(keras.utils.Sequence):
         return tuple([[X1, X2], Y])
 
 
-class GeneratorStartImage(keras.utils.Sequence):
+class GeneratorStartImage(tensorflow.keras.utils.Sequence):
     
     def __init__(self, images, labels,
                  batch_size,
                  inputShape=(640, 360, 3),
-                 shuffle=True):
+                 shuffle=True,
+                 COLOR=True):
 
         self.images = images
         self.labels = labels
@@ -111,6 +117,7 @@ class GeneratorStartImage(keras.utils.Sequence):
         self.inputShape = inputShape
         self.shuffle = shuffle
         self.imageSize = inputShape[0], inputShape[1]
+        self.COLOR = COLOR
         
         self.n = len(self.labels)
 
@@ -157,19 +164,20 @@ class GeneratorStartImage(keras.utils.Sequence):
         
         startImages = []
         for path, startFrame in imageBatch:
-            frames = getFrames(path, startFrame, 1)
+            frames = getFrames(path, startFrame, 1, self.COLOR)
             startImages.append(self.__get_input(PIL.Image.fromarray(frames[0])))
         
         X1, Y = self.__get_output(startImages, labelBatch)
 
         return tuple([X1, Y])
 
-class GeneratorEndImage(keras.utils.Sequence):
+class GeneratorEndImage(tensorflow.keras.utils.Sequence):
     
     def __init__(self, images, labels,
                  batch_size,
                  inputShape=(640, 360, 3),
-                 shuffle=True):
+                 shuffle=True,
+                 COLOR=True):
 
         self.images = images
         self.labels = labels
@@ -177,7 +185,8 @@ class GeneratorEndImage(keras.utils.Sequence):
         self.inputShape = inputShape
         self.shuffle = shuffle
         self.imageSize = inputShape[0], inputShape[1]
-        
+        self.COLOR = COLOR
+
         self.n = len(self.labels)
 
         
@@ -223,7 +232,7 @@ class GeneratorEndImage(keras.utils.Sequence):
         
         startImages = []
         for path, startFrame in imageBatch:
-            frames = getFrames(path, startFrame, 1)
+            frames = getFrames(path, startFrame, 1, self.COLOR)
             startImages.append(self.__get_input(PIL.Image.fromarray(frames[0])))
         
         X1, Y = self.__get_output(startImages, labelBatch)

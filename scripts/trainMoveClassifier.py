@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 stderr = sys.stderr
 sys.stderr = open(os.devnull, 'w')
 os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 sys.stderr = stderr
 import PIL
 from tqdm import tqdm
@@ -16,13 +16,14 @@ import time
 import json
 import cv2
 
+
 sys.path.append('../models')
 from MoveClassifier import MoveClassifier
 sys.path.append('../helpers')
-from Generators import Generator2Images, GeneratorEndImage
+from Generators import Generator2Images, GeneratorStartImage
 
 
-def getFrames(videoPath, startFrame, numFrames):
+def getFrames(videoPath, startFrame, numFrames, COLOR):
     cap = cv2.VideoCapture(videoPath)
     frameCount = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     cap.set(1,startFrame)
@@ -38,7 +39,10 @@ def getFrames(videoPath, startFrame, numFrames):
     while (fc < startFrame + numFrames):
         
         ret, frame = cap.read()
-        buf.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        if COLOR:
+          buf.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        else:
+          buf.append(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
         fc += 1
         counter -= 1
 
@@ -94,11 +98,11 @@ def splitTrainData(images, labels):
     return X_train, Y_train, X_val, Y_val, X_test, Y_test
 
 
-def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
+def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET, COLOR):
 
     # --------------------------------------------- Load Model and Data -------------------------------------------------
     # Set Output Path
-    outputPath = "../model_tests/Move Classifier/" + FEATURE + "-BAL" + str(BALANCED) + "-BS" + str(BATCHSIZE) + "-IW" + str(INPUTSHAPE[0]) + "-IH" + str(INPUTSHAPE[1]) + "-SUB" + str(SUBSET) + "/"
+    outputPath = "../model_tests/Move Classifier/" + FEATURE + "-BAL" + str(BALANCED) + "-BS" + str(BATCHSIZE) + "-IW" + str(INPUTSHAPE[0]) + "-IH" + str(INPUTSHAPE[1]) + "-SUB" + str(SUBSET) + "-RGB" + str(COLOR) + "/"
     # Paths to Data
     DATAPATH = "../assets/datasets/BASALT Contractor Dataset/"
 
@@ -116,8 +120,8 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
     if FEATURE in ["attack", "forward", "backward", "left", "right", "jump", "sneak", "sprint", "use", "drop"]:
 
         # Load Data into Generators
-        generator = Generator2Images(X_train, Y_train, batch_size=BATCHSIZE, inputShape=INPUTSHAPE)
-        val_generator = Generator2Images(X_val, Y_val, batch_size=BATCHSIZE, inputShape=INPUTSHAPE)
+        generator = Generator2Images(X_train, Y_train, batch_size=BATCHSIZE, inputShape=INPUTSHAPE, COLOR=COLOR)
+        val_generator = Generator2Images(X_val, Y_val, batch_size=BATCHSIZE, inputShape=INPUTSHAPE, COLOR=COLOR)
 
         # Create Model
         print("Building " + FEATURE + " Model...")
@@ -128,8 +132,9 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
     else:
 
         # Load Data into Generators
-        generator = GeneratorEndImage(X_train, Y_train, batch_size=BATCHSIZE, inputShape=INPUTSHAPE)
-        val_generator = GeneratorEndImage(X_val, Y_val, batch_size=BATCHSIZE, inputShape=INPUTSHAPE)
+        generator = GeneratorStartImage(X_train, Y_train, batch_size=BATCHSIZE, inputShape=INPUTSHAPE, COLOR=COLOR)
+        val_generator = GeneratorStartImage(X_val, Y_val, batch_size=BATCHSIZE, inputShape=INPUTSHAPE, COLOR=COLOR)
+
 
         # Create Model
         print("Building " + FEATURE + " Model...")
@@ -148,12 +153,12 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
     if not os.path.exists(outputPath):
             os.makedirs(outputPath)
     early_stopping = EarlyStopping(monitor='val_loss', patience=10, mode='auto', restore_best_weights=True)
-
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, mode='auto')
     # Train Model
-    history = model.fit_generator(generator=generator,
+    history = model.fit(generator,
                 validation_data=val_generator,
                 use_multiprocessing=True,
-                callbacks = [early_stopping],
+                callbacks = [reduce_lr, early_stopping],
                 workers=6,
                 epochs=EPOCHS)
     
@@ -191,9 +196,10 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
         # Load Test Data
         startImages = []
         endImages = []
-        for x in tqdm(X_test):
-            startImages.append(processImage(x[0]))
-            endImages.append(processImage(x[1]))
+        for path, startFrame in X_test:
+            frames = getFrames(path, startFrame, 2, COLOR)
+            startImages.append(processImage(PIL.Image.fromarray(frames[0]), INPUTSHAPE))
+            endImages.append(processImage(PIL.Image.fromarray(frames[1]), INPUTSHAPE))
 
         testImages = [np.array(startImages, np.float32), np.array(endImages, np.float32)]
 
@@ -227,7 +233,7 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
         # Load Test Data
         testImages = []
         for path, startFrame in X_test:
-            frames = getFrames(path, startFrame, 1)
+            frames = getFrames(path, startFrame, 1, COLOR)
             testImages.append(processImage(PIL.Image.fromarray(frames[0]), INPUTSHAPE))
         testImages = np.array(testImages, np.float32)
 
@@ -289,16 +295,25 @@ if __name__ == "__main__":
     parser.add_argument("--balanced", type=int, default=0)
     parser.add_argument("--shrink", type=float, default=1.0)
     parser.add_argument("--subset", type=float, default=1.0)
+    parser.add_argument("--color", type=int, default=1)
 
     args = parser.parse_args()
 
     BALANCED = False
     if args.balanced == 1:
         BALANCED = True
+    COLOR = False
+    dims = 1
+    if args.color == 1:
+        COLOR = True
+        dims = 3
     
-    INPUTSHAPE = (int(640*args.shrink), int(360*args.shrink), 3)
+    INPUTSHAPE = (int(640*args.shrink), int(360*args.shrink), dims)
 
     # Call Main
-    main(args.feature, args.batchsize, args.epochs, BALANCED, INPUTSHAPE, args.subset)
+    main(args.feature, args.batchsize, args.epochs, BALANCED, INPUTSHAPE, args.subset, COLOR)
+
+
+
 
 
