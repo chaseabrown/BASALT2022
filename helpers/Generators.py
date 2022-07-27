@@ -13,22 +13,18 @@ def getFrames(videoPath, startFrame, numFrames):
     frameWidth = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frameHeight = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    buf = np.empty((
-        numFrames,
-        frameHeight,
-        frameWidth,
-        3), np.dtype('uint8'))
+    buf = []
 
     fc = startFrame
     ret = True
 
-    counter = 0
+    counter = numFrames-1
     while (fc < startFrame + numFrames):
         
         ret, frame = cap.read()
-        buf[counter] = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        buf.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         fc += 1
-        counter += 1
+        counter -= 1
 
     cap.release()
     return buf
@@ -227,7 +223,7 @@ class GeneratorEndImage(keras.utils.Sequence):
         
         startImages = []
         for path, startFrame in imageBatch:
-            frames = getFrames(path, startFrame + 1, 1)
+            frames = getFrames(path, startFrame, 1)
             startImages.append(self.__get_input(PIL.Image.fromarray(frames[0])))
         
         X1, Y = self.__get_output(startImages, labelBatch)

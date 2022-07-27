@@ -14,6 +14,7 @@ import PIL
 from tqdm import tqdm
 import time
 import json
+import cv2
 
 sys.path.append('../models')
 from MoveClassifier import MoveClassifier
@@ -21,8 +22,31 @@ sys.path.append('../helpers')
 from Generators import Generator2Images, GeneratorEndImage
 
 
+def getFrames(videoPath, startFrame, numFrames):
+    cap = cv2.VideoCapture(videoPath)
+    frameCount = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    cap.set(1,startFrame)
+    frameWidth = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frameHeight = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    buf = []
+
+    fc = startFrame
+    ret = True
+
+    counter = numFrames-1
+    while (fc < startFrame + numFrames):
+        
+        ret, frame = cap.read()
+        buf.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        fc += 1
+        counter -= 1
+
+    cap.release()
+    return buf
+
 def gatherData(DATAPATH, FEATURE, BALANCED, SUBSET):
-    moves = pd.read_csv(DATAPATH + "/moves.csv")
+    moves = pd.read_csv(DATAPATH + "moves.csv")
     if BALANCED:
         positives = moves[moves[FEATURE] == 1]
         negatives = moves[moves[FEATURE] == 0]
@@ -46,8 +70,7 @@ def gatherData(DATAPATH, FEATURE, BALANCED, SUBSET):
     return images, labels
 
 # Takes in images from gatherData and returns input for model
-def processImage(image):
-    image = PIL.Image.open(image)
+def processImage(image, INPUTSHAPE):
     image.thumbnail((INPUTSHAPE[0],INPUTSHAPE[1]), PIL.Image.ANTIALIAS)
     image = np.array(image)
     image = image.astype('float32')
@@ -82,17 +105,15 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
     # Time Check and Update User
     trainDataTime = time.time()
     print("Loading Training Data...")
-    X_test = []
-    Y_test = []
+
+     # Load Data
+    images, labels = gatherData(DATAPATH, FEATURE, BALANCED, SUBSET)
+
+    # Split Data
+    X_train, Y_train, X_val, Y_val, X_test, Y_test = splitTrainData(images, labels)
 
     # If Feature uses 2 images model and is categorically binary, use this
     if FEATURE in ["attack", "forward", "backward", "left", "right", "jump", "sneak", "sprint", "use", "drop"]:
-
-        # Load Data
-        images, labels = gatherData(DATAPATH, FEATURE, BALANCED, SUBSET)
-
-        # Split Data
-        X_train, Y_train, X_val, Y_val, X_test, Y_test = splitTrainData(images, labels)
 
         # Load Data into Generators
         generator = Generator2Images(X_train, Y_train, batch_size=BATCHSIZE, inputShape=INPUTSHAPE)
@@ -105,11 +126,6 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
     
     # If Feature uses 1 images model and is categorically binary, use this
     else:
-        # Load Data
-        images, labels = gatherData(DATAPATH, FEATURE, BALANCED, SUBSET)
-
-        # Split Data
-        X_train, Y_train, X_val, Y_val, X_test, Y_test = splitTrainData(images, labels)
 
         # Load Data into Generators
         generator = GeneratorEndImage(X_train, Y_train, batch_size=BATCHSIZE, inputShape=INPUTSHAPE)
@@ -210,8 +226,9 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
 
         # Load Test Data
         testImages = []
-        for x in tqdm(X_test):
-            testImages.append(processImage(x[1]))
+        for path, startFrame in X_test:
+            frames = getFrames(path, startFrame, 1)
+            testImages.append(processImage(PIL.Image.fromarray(frames[0]), INPUTSHAPE))
         testImages = np.array(testImages, np.float32)
 
         # Time Check and Update User
@@ -224,17 +241,17 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET):
         for i in tqdm(range(0, len(predictions))):
             if int(Y_test[i]) == round(predictions[i][0]):
                 if Y_test[i] == 0:
-                    output.append({"image": X_test[i][1], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "TN"})
+                    output.append({"image": X_test[i][0], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "TN"})
                     TN += 1
                 else:
-                    output.append({"image": X_test[i][1], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "TP"})
+                    output.append({"image": X_test[i][0], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "TP"})
                     TP += 1
             else:
                 if Y_test[i] == 0:
-                    output.append({"image": X_test[i][1], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "FP"})
+                    output.append({"image": X_test[i][0], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "FP"})
                     FP += 1
                 else:
-                    output.append({"image": X_test[i][1], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "FN"})
+                    output.append({"image": X_test[i][0], "prediction": predictions[i][0], "true": int(Y_test[i]), "results": "FN"})
                     FN += 1
 
     # Time Check and Update User
