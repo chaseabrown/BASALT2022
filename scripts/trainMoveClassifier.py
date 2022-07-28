@@ -15,7 +15,7 @@ from tqdm import tqdm
 import time
 import json
 import cv2
-
+import multiprocessing
 
 sys.path.append('../models')
 from MoveClassifier import MoveClassifier
@@ -147,7 +147,7 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET, COLOR):
     trainDataTime = time.time() - trainDataTime
     trainTime = time.time()
     print("Training " + FEATURE + " Model...")
-
+    print("Using", multiprocessing.cpu_count(), "cores.")
 
     # Setup Environment and Callbacks for Training
     if not os.path.exists(outputPath):
@@ -155,11 +155,11 @@ def main(FEATURE, BATCHSIZE, EPOCHS, BALANCED, INPUTSHAPE, SUBSET, COLOR):
     early_stopping = EarlyStopping(monitor='val_loss', patience=10, mode='auto', restore_best_weights=True)
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, mode='auto')
     # Train Model
-    history = model.fit(generator,
+    history = model.fit_generator(generator=generator,
                 validation_data=val_generator,
                 use_multiprocessing=True,
                 callbacks = [reduce_lr, early_stopping],
-                workers=6,
+                workers=multiprocessing.cpu_count(),
                 epochs=EPOCHS)
     
     # Plot training & validation loss values

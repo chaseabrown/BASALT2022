@@ -13,6 +13,7 @@ os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 from keras.layers import BatchNormalization
 from keras.layers import Conv2D
 from keras.layers import MaxPooling2D
+from keras.layers import SpatialDropout2D
 from keras.layers import Activation
 from keras.layers import Dropout
 from keras.layers import Dense
@@ -28,6 +29,7 @@ import locale
 import json
 import random
 sys.stderr = stderr
+
 
 
 

@@ -2,9 +2,10 @@ import numpy as np
 import PIL
 from random import shuffle
 import random
-import tensorflow
+import keras
 import cv2
 import math
+
 
 def getFrames(videoPath, startFrame, numFrames, COLOR):
     cap = cv2.VideoCapture(videoPath)
@@ -32,7 +33,7 @@ def getFrames(videoPath, startFrame, numFrames, COLOR):
     cap.release()
     return buf
 
-class Generator2Images(tensorflow.keras.utils.Sequence):
+class Generator2Images(keras.utils.Sequence):
     
     def __init__(self, images, labels,
                  batch_size,
@@ -103,7 +104,7 @@ class Generator2Images(tensorflow.keras.utils.Sequence):
         return tuple([[X1, X2], Y])
 
 
-class GeneratorStartImage(tensorflow.keras.utils.Sequence):
+class GeneratorStartImage(keras.utils.Sequence):
     
     def __init__(self, images, labels,
                  batch_size,
@@ -171,7 +172,7 @@ class GeneratorStartImage(tensorflow.keras.utils.Sequence):
 
         return tuple([X1, Y])
 
-class GeneratorEndImage(tensorflow.keras.utils.Sequence):
+class GeneratorEndImage(keras.utils.Sequence):
     
     def __init__(self, images, labels,
                  batch_size,
