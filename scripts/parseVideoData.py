@@ -35,26 +35,10 @@ def getFrames(videoPath):
     return videoArray, frameWidth, frameHeight
 
 def getMoves(movesPath):
-    with open(movesPath, "r") as json_file:
-        imagePath = '/'.join(movesPath.split('/')[:6]).replace("Agent Moves", "Move Classifier Data").replace(".txt", "") + "/"
-        listOfMoves = []
-        counter = 0
-        for line in json_file.readlines():
-            try:
-                moves = json.loads(line.replace(":", '":').replace("{", '{"').replace("], ", '], "'))
-                clean = []
-                for key in moves.keys():
-                    if key == "camera":
-                        clean = str(moves[key]).replace("[", "").replace("]", "").split(", ")
-                    else:
-                        moves[key] = int(str(moves[key]).replace("[", "").replace("]", ""))
-                moves.update({"camera1": float(clean[0]), "camera2": float(clean[1])})
-                moves.update({"startImage": counter})
-                moves.pop('camera', None)
-                counter += 1
-                listOfMoves.append(moves)
-            except Exception as e:
-                print(e)
+    imagePath = '/'.join(movesPath.split('/')[:6]).replace("Agent Moves", "Move Classifier Data").replace(".txt", "") + "/"
+    listOfVideos = []
+    counter = 0
+        
     return listOfMoves
 
 def gatherData(dataPathList):
