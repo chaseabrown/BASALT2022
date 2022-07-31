@@ -43,7 +43,7 @@
 
 ### Notebooks:
 
-* [Item Classifier - FINISHED]("https://github.com/chaseabrown/BASALT2022/notebooks/Item Classifier.py") is a notebook demonstration of the item classifier in *InvClassifier.py* with an explaination of the process.
+* [Item Classifier - FINISHED](https://github.com/chaseabrown/BASALT2022/notebooks/Item\ Classifier.py) is a notebook demonstration of the item classifier in *InvClassifier.py* with an explaination of the process.
 
   **Packages Used: OS, NumPy, PIL, SkLearn, MatPlotLib, CV2**
 
