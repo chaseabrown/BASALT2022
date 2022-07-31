@@ -97,10 +97,6 @@
 
 ### Scripts:
 
-* [ - FINISHED (OUT OF USE)](<https://github.com/chaseabrown/BASALT2022/notebooks/text.py>) 
-
-  **Packages Used: **
-
 * [Build Item Classifier Data - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/buildItemClassifierData.py>) is a script that edits the minerl package before importing to edit which items will start in the inventory. Those items are then logged by name and quantity and an image of the inventory is stored. This is used to train both the item classifier and the item quantity classifier in *InvClassifier.py*.
 
   **Packages Used: PIL, Logging, ColoredLogs, DateTime, OS, Random, Sys, Pandas**
@@ -125,33 +121,64 @@
 
   **Packages Used: Sys, OS, Numpy, PIL, SkLearn**
   
-* [ - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/text.py>) 
+* [Train Move Classifier - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/trainMoveClassifier.py>) is the script used to train *MoveClassifier.py*. There are many arguments used for testing different versions of the model. 
 
-  **Packages Used: **
+ ```
+  Arguments:
+  --features (required) ["attack", "forward", "backward", "left", "right", "jump", "sneak", "sprint", "use", "drop", "inventory"] These are the different  models we need to train. There are a few more, but they don't work at the moment. Will update as those are ready
+
+  --batchsize (default = 16) [1:64] Make sure to change batchsize to fit your machine (If your graphics card can't handle it, drop the batchsize, if it can, increase it until your training speed stops increasing)
+
+  --epochs (default = 10) [1:200] It has auto stopping, so just make sure its high enough to meet it. If you are running a speed test and accuracy doesn't matter then drop it
+
+  --balance (default = 0) [1 or 0] Balances the number of positive and negative cases (Right now it drops a bunch of data, but I need to fix that to  duplicate smaller dataset for final version)
   
-* [Test Move Classifier - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/testMoveClassifier.py>) 
+  --shrink (default = 1.0) (0.0, 1.0] Ratio for shrinking an image. 1.0 keep it at original size and .5 shrinks it to half its size for example
+  
+  --subset (default = 1.0) (0.0, 1.0] Samples a subset of the dataset for faster tests using less data
+  
+  Example
+  python testMoveClassifier.py --features "inventory" --batchsize 16 --epochs 10 --balanced 1 --shrink .5 --subset .1
+  ```
+
+  **Packages Used: Sys, Os, Pandas, Random, Numpy, MatPlotLib, ArgParse, Keras, PIL, TQDM, Time, Json, CV2, Multiprocessing**
+  
+* [Test Move Classifier - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/testMoveClassifier.py>) is the script used to test the *MoveClassifier.py* models created by *trainMoveClassifier.py*. Matching the arguments used on *trainMoveClassifer.py* will test that trained model.
   
   ```
   Arguments:
   --features (required) ["attack", "forward", "backward", "left", "right", "jump", "sneak", "sprint", "use", "drop", "inventory"] These are the different  models we need to train. There are a few more, but they don't work at the moment. Will update as those are ready
+
   --batchsize (default = 16) [1:64] Make sure to change batchsize to fit your machine (If your graphics card can't handle it, drop the batchsize, if it can, increase it until your training speed stops increasing)
+
   --epochs (default = 10) [1:200] It has auto stopping, so just make sure its high enough to meet it. If you are running a speed test and accuracy doesn't matter then drop it
-  --balance (default = 0) [1 or 0] Balances the number of positive and negative cases (Right now it drops a bunch of data, but I need to fix that to duplicate smaller dataset for final version)
+
+  --balance (default = 0) [1 or 0] Balances the number of positive and negative cases (Right now it drops a bunch of data, but I need to fix that to  duplicate smaller dataset for final version)
+  
   --shrink (default = 1.0) (0.0, 1.0] Ratio for shrinking an image. 1.0 keep it at original size and .5 shrinks it to half its size for example
+  
   --subset (default = 1.0) (0.0, 1.0] Samples a subset of the dataset for faster tests using less data
+  
+  Example
+  python testMoveClassifier.py --features "inventory" --batchsize 16 --epochs 10 --balanced 1 --shrink .5 --subset .1
   ```
   
-  **Packages Used: **
+  **Packages Used: Sys, OS, Pandas, Random, MatPlotLib, ArgParse, Keras, Tensorflow/PlaidML**
   
-* [ - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/text.py>) 
-
-  **Packages Used: **
+* [Parse Video Data - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/parseVideoData.py>) is a script that breaks up video data into more easily accessable move->frame pairs.
   
-* [ - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/text.py>) 
-
-  **Packages Used: **
+  **Packages Used: OS, CV2, Json, Numpy, PIL, Pandas, TQDM, Multiprocessing**
   
-* [ - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/text.py>) 
+* [Sort Color Maps - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/sortColorMaps.py>) is a script that reads all of the ColorMap data and labels which colors are in which ColorMap and saves those values in an CSV for easy reading for later analysis.
 
-  **Packages Used: ** 
+  **Packages Used: PIL, Numpy, Pandas, OS, TQDM, Json, ShUtil, Multiprocessing**
+  
+* [Download Youtube Transcripts - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/downloadYoutubeTranscripts.py>) is a script that loops through the MineDojo Youtube video and downloads the transcripts so I can search videos by what is said in them.
+
+  **Packages Used: Minedojo, Youtube Transcript API, TQDM, Pandas, Multiprocessing**
+  
+* [Train Block Segmentator - UNFINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/trainBlockSegmentator.py>) is the script that starts training for *BlockSegmentation.py*. 
+
+  **Packages Used: Random, Json, Requests, ShUtil, PIL, Numpy, Pandas, OS, TQDM**
+
  
