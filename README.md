@@ -3,8 +3,6 @@
 
 **This project is still in development.**
 
-## Quick Look - 
-
 ### Models:
 * [Inventory Classifier - FINISHED](https://github.com/chaseabrown/BASALT2022/blob/master/models/InvClassifier.py) is a class with 3 functions: read image of inventory items and predict the item type and quantity using a `Gaussian Naive Bayes` model and read an image of the full screen and get the cursor location using a `Convolutional Neural Network (CNN)`.
 
