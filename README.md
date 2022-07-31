@@ -10,7 +10,7 @@
 
   **Packages Used: OS, NumPy, PIL, SkLearn, Detecto, MatPlotLib, CV2, GDown**
 
-* [DQN - FINISHED (But will need work later)](https://github.com/chaseabrown/BASALT2022/models/DQN.py) is a class with 3 functions: read image of inventory items and predict the item type and quantity using a `Gaussian Naive Bayes` model and read an image of the full screen and get the cursor location using a `Convolutional Neural Network (CNN)`.
+* [DQN - IN PROGRESS](https://github.com/chaseabrown/BASALT2022/models/DQN.py) is a class with 3 functions: read image of inventory items and predict the item type and quantity using a `Gaussian Naive Bayes` model and read an image of the full screen and get the cursor location using a `Convolutional Neural Network (CNN)`.
 
   **Packages Used: OS, NumPy, Random, Collections, Keras, Tensorflow/PlaidML**
 
@@ -177,7 +177,7 @@
 
   **Packages Used: Minedojo, Youtube Transcript API, TQDM, Pandas, Multiprocessing**
   
-* [Train Block Segmentator - UNFINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/trainBlockSegmentator.py>) is the script that starts training for *BlockSegmentation.py*. 
+* [Train Block Segmentator - IN PROGRESS](<https://github.com/chaseabrown/BASALT2022/scripts/trainBlockSegmentator.py>) is the script that starts training for *BlockSegmentation.py*. 
 
   **Packages Used: Random, Json, Requests, ShUtil, PIL, Numpy, Pandas, OS, TQDM**
 
