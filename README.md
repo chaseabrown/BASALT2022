@@ -29,6 +29,18 @@
 
 ### Generators:
 
+* [GeneratorStartImage - FINISHED](https://github.com/chaseabrown/BASALT2022/helpers/Generators.py) is a generator class that serves some of the models in MoveClassifier.py. For example, the model that detects whether or not the inventory is open only needs the frame before a move is given. 
+
+* [GeneratorEndImage - FINISHED](https://github.com/chaseabrown/BASALT2022/helpers/Generators.py) is a generator class that serves some of the models in MoveClassifier.py. For example, the model that detects whether or not the character is told to attack needs the frame after a move is given. 
+
+* [Generator2Images - FINISHED](https://github.com/chaseabrown/BASALT2022/helpers/Generators.py) is a generator class that serves some of the models in MoveClassifier.py. For example, the model that detects whether or not the character is moving in a specific direction needs 2 frames so it can compare the two.
+
+* [SegmentationGenerator - IN PROGRESS](https://github.com/chaseabrown/BASALT2022/helpers/Generators.py) is a class with the sole purpose of reading in an RGB Frame and returning a ColorMap that represents the block at each pixel. The model uses `Keras` for `Semantic Segmentation` with a `U-Net Architecture`.
+
+* [DepthEstGenerator - IN PROGRESS](https://github.com/chaseabrown/BASALT2022/helpers/Generators.py) is a class with the sole purpose of reading in an RGB Frame and returning a depth map at each pixel. The model uses `Keras` for a `Deep Learning Autoencoder`.
+
+**Packages Used: NumPy, PIL, Random, CV2, Math, Keras, Tensorflow/PlaidML**
+
 ### Notebooks:
 
 ### Scripts:
