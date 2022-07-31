@@ -1,7 +1,7 @@
 # BASALT2022
 ## These are the competition files for BASALT 2022
 
-**This Project is still in progress, so it is not very well documentmented**
+**This project is still in development.**
 
 ## Quick Look - 
 
