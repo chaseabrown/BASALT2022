@@ -95,7 +95,7 @@
 
 ### [Scripts](https://github.com/chaseabrown/BASALT2022/blob/master/scripts/):
 
-* [Build Item Classifier Data - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/buildItemClassifierData.py>) is a script that edits the minerl package before importing to edit which items will start in the inventory. Those items are then logged by name and quantity and an image of the inventory is stored. This is used to train both the item classifier and the item quantity classifier in *InvClassifier.py*.
+* [Build Item Classifier Data - FINISHED](<https://github.com/chaseabrown/BASALT2022/blob/master/scripts/buildItemClassifierData.py>) is a script that edits the minerl package before importing to edit which items will start in the inventory. Those items are then logged by name and quantity and an image of the inventory is stored. This is used to train both the item classifier and the item quantity classifier in *InvClassifier.py*.
 
   **Packages Used: PIL, Logging, ColoredLogs, DateTime, OS, Random, Sys, Pandas**
   
