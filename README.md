@@ -96,3 +96,62 @@
   **Packages Used: Minedojo**
 
 ### Scripts:
+
+* [ - FINISHED (OUT OF USE)](<https://github.com/chaseabrown/BASALT2022/notebooks/text.py>) 
+
+  **Packages Used: **
+
+* [Build Item Classifier Data - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/buildItemClassifierData.py>) is a script that edits the minerl package before importing to edit which items will start in the inventory. Those items are then logged by name and quantity and an image of the inventory is stored. This is used to train both the item classifier and the item quantity classifier in *InvClassifier.py*.
+
+  **Packages Used: PIL, Logging, ColoredLogs, DateTime, OS, Random, Sys, Pandas**
+  
+* [Block Prediction Solution Test - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/blockPredSolutionTest.py>) is a script testing the item classifier in *InvClassifer.py*. 
+
+  **Packages Used: OS, Numpy, PIL, MatPlotLib, SkLearn**
+  
+* [Quantity Prediction Solution Test - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/quantitySolutionTest.py>) is a script testing the item quantity classifier in *InvClassifer.py*. 
+
+  **Packages Used: OS, Numpy, PIL, MatPlotLib, SkLearn**
+
+* [Clean Inventory Data - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/cleanInventoryData.py>) is a script that takes an image of the inventory and saves a bunch of small images of each item in the inventory.
+
+  **Packages Used: PIL, OS, Numpy, Pandas**
+
+* [Simulate Cursor In Dataset - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/simulateCursorInDataset.py>) is a script that takes in a list of inventory images with no cursor (I moved it off of the screen for this purpose) and pastes a picture of the cursor at a random point on the screen and stores that location with a saved picture. This is done multiple times to create the dataset for my cursor detector model in *InvClassifier.py*
+
+  **Packages Used: PIL, Numpy, OS, Random**
+
+* [Test InvClassifier - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/testInvClassifier.py>) is a scripts that tests both the item classifier and the quantity classifer by importing them from their class in  *InvClassifier.py*
+
+  **Packages Used: Sys, OS, Numpy, PIL, SkLearn**
+  
+* [ - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/text.py>) 
+
+  **Packages Used: **
+  
+* [Test Move Classifier - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/testMoveClassifier.py>) 
+  
+  ```
+  Arguments:
+  --features (required) ["attack", "forward", "backward", "left", "right", "jump", "sneak", "sprint", "use", "drop", "inventory"] These are the different  models we need to train. There are a few more, but they don't work at the moment. Will update as those are ready
+  --batchsize (default = 16) [1:64] Make sure to change batchsize to fit your machine (If your graphics card can't handle it, drop the batchsize, if it can, increase it until your training speed stops increasing)
+  --epochs (default = 10) [1:200] It has auto stopping, so just make sure its high enough to meet it. If you are running a speed test and accuracy doesn't matter then drop it
+  --balance (default = 0) [1 or 0] Balances the number of positive and negative cases (Right now it drops a bunch of data, but I need to fix that to duplicate smaller dataset for final version)
+  --shrink (default = 1.0) (0.0, 1.0] Ratio for shrinking an image. 1.0 keep it at original size and .5 shrinks it to half its size for example
+  --subset (default = 1.0) (0.0, 1.0] Samples a subset of the dataset for faster tests using less data
+  ```
+  
+  **Packages Used: **
+  
+* [ - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/text.py>) 
+
+  **Packages Used: **
+  
+* [ - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/text.py>) 
+
+  **Packages Used: **
+  
+* [ - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/text.py>) 
+
+  **Packages Used: ** 
+ 
