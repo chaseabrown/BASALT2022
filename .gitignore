@@ -6,3 +6,5 @@
 *.jpg
 assets/datasets/
 model_tests/
+assets/MineDojo Youtube/youtube_tutorial.json
+assets/MineDojo Youtube/youtube_full.json
