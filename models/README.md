@@ -8,3 +8,10 @@ InventoryClassifier is a class with 3 functions:
 3. Read an image of the full screen and get the cursor location using a Convolutional Neural Network (CNN)
 
 [![Inventory Classifier](https://github.com/chaseabrown/BASALT2022/blob/master/assets/github-images/InvClassifier%20Diagram.jpeg)](https://github.com/chaseabrown/BASALT2022/blob/master/models/InvClassifier.py)
+
+## Deep Q-Learning Network (DQN.py)
+
+DQN is a standard Deep Q-Learning Network which I intend to use for specific training situations that OpenAI's VPT Model isn't designed to handle.
+
+[![Inventory Classifier](https://github.com/chaseabrown/BASALT2022/blob/master/assets/github-images/DQN%20Diagram.png)](https://github.com/chaseabrown/BASALT2022/blob/master/models/DQN.py)
+
