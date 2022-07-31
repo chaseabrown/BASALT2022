@@ -3,7 +3,7 @@
 
 **This project is still in development.**
 
-### Models:
+### [Models](https://github.com/chaseabrown/BASALT2022/blob/master/models/)
 * [Inventory Classifier - FINISHED](https://github.com/chaseabrown/BASALT2022/blob/master/models/InvClassifier.py) is a class with 3 functions: read image of inventory items and predict the item type and quantity using a `Gaussian Naive Bayes` model and read an image of the full screen and get the cursor location using a `Convolutional Neural Network (CNN)`.
 
   **Packages Used: OS, NumPy, PIL, SkLearn, Detecto, MatPlotLib, CV2, GDown**
@@ -25,7 +25,7 @@
   **Packages Used: OS, Sys, NumPy, Pandas, MatPlotLib, CV2, Keras, Tensorflow/PlaidML**
 
 
-### Generators:
+### [Generators](https://github.com/chaseabrown/BASALT2022/blob/master/helpers/Generators.py)
 
 * [GeneratorStartImage - FINISHED](https://github.com/chaseabrown/BASALT2022/blob/master/helpers/Generators.py) is a generator class that serves some of the models in *MoveClassifier.py*. For example, the model that detects whether or not the inventory is open only needs the frame before a move is given. 
 
@@ -39,7 +39,7 @@
 
   **Packages Used: NumPy, PIL, Random, CV2, Math, Keras, Tensorflow/PlaidML**
 
-### Notebooks:
+### [Notebooks](https://github.com/chaseabrown/BASALT2022/blob/master/notebooks/):
 
 * [Item Classifier - FINISHED](<https://github.com/chaseabrown/BASALT2022/blob/master/notebooks/Item Classifier.ipynb>) is a notebook demonstration of the item classifier in *InvClassifier.py* with an explaination of the process.
 
@@ -93,7 +93,7 @@
 
   **Packages Used: Minedojo**
 
-### Scripts:
+### [Scripts](https://github.com/chaseabrown/BASALT2022/blob/master/scripts/):
 
 * [Build Item Classifier Data - FINISHED](<https://github.com/chaseabrown/BASALT2022/scripts/buildItemClassifierData.py>) is a script that edits the minerl package before importing to edit which items will start in the inventory. Those items are then logged by name and quantity and an image of the inventory is stored. This is used to train both the item classifier and the item quantity classifier in *InvClassifier.py*.
 
