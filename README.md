@@ -37,7 +37,7 @@
 
 * [DepthEstGenerator - IN PROGRESS](https://github.com/chaseabrown/BASALT2022/blob/master/helpers/Generators.py) is a generator class that serves the model in *DepthEstimator.py*. It serves the model both the RGB image and the Depth Map images for training.
 
-**Packages Used: NumPy, PIL, Random, CV2, Math, Keras, Tensorflow/PlaidML**
+  **Packages Used: NumPy, PIL, Random, CV2, Math, Keras, Tensorflow/PlaidML**
 
 ### Notebooks:
 
