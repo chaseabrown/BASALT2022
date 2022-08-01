@@ -14,7 +14,7 @@ A notebook demonstration of the item quantity classifier in *InvClassifier.py* w
 
 ## [Data Generator Class Setup - FINISHED](<https://github.com/chaseabrown/BASALT2022/blob/master/notebooks/Data Generator Class Setup.ipynb>) 
 
-A notebook demonstration of how I step up and tested *StartImageGenerator* and *EndImageGenerator*. 
+A notebook demonstration of how I set up and tested *StartImageGenerator* and *EndImageGenerator*. 
 
 **Packages Used: NumPy, PIL, Json, TQDM, Pandas, Random, CV2, Math, Keras**
 
