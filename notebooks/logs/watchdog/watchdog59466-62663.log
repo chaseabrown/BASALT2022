@@ -1,1 +1,2 @@
 2022-07-30 19:36:20 Chases-Mac-mini.local watchdog[62685] INFO Watchdog started between parent 59466 and child 62663
+2022-07-31 19:56:06 Chases-Mac-mini.local watchdog[62685] INFO Parent is not running, hence we need terminate the child.

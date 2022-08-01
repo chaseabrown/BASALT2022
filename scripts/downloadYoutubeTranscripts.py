@@ -28,6 +28,12 @@ def runBlocks(cores, samples):
         process.join()
 
 
+#Get pil image from numpy array of shape (3, height, width)
+def getPILImage(img):
+    img = img.transpose(1, 2, 0)
+    img = PIL.Image.fromarray(img)
+    return img
+
 def main():
     youtube_dataset = YouTubeDataset(
         full=False,     # full=False for tutorial videos or 
